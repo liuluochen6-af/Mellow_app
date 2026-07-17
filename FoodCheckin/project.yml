@@ -1,0 +1,28 @@
+name: FoodCheckin
+options:
+  bundleIdPrefix: com.foodcheckin
+  deploymentTarget:
+    iOS: "17.0"
+targets:
+  FoodCheckin:
+    type: application
+    platform: iOS
+    sources:
+      - FoodCheckin
+    info:
+      path: FoodCheckin/Info.plist
+      properties:
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        NSLocationWhenInUseUsageDescription: "需要获取您的位置以记录打卡地点"
+        NSPhotoLibraryUsageDescription: "需要访问相册以选择打卡照片"
+        NSCameraUsageDescription: "需要使用相机拍摄打卡照片"
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
+    settings:
+      base:
+        SWIFT_VERSION: "5.9"
+        PRODUCT_BUNDLE_IDENTIFIER: com.foodcheckin.app

@@ -1,0 +1,45 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"name": "北京市"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[115.42, 39.44], [117.51, 39.44], [117.51, 41.06], [115.42, 41.06], [115.42, 39.44]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "上海市"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[120.86, 30.68], [122.12, 30.68], [122.12, 31.87], [120.86, 31.87], [120.86, 30.68]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "广东省"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[109.66, 20.22], [117.19, 20.22], [117.19, 25.52], [109.66, 25.52], [109.66, 20.22]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "浙江省"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[118.02, 27.02], [122.95, 27.02], [122.95, 31.18], [118.02, 31.18], [118.02, 27.02]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "四川省"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[97.35, 26.05], [108.54, 26.05], [108.54, 34.32], [97.35, 34.32], [97.35, 26.05]]]
+      }
+    }
+  ]
+}

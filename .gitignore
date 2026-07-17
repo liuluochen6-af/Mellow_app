@@ -1,0 +1,34 @@
+# Python
+backend/.venv/
+backend/venv/
+backend/__pycache__/
+backend/app/__pycache__/
+**/__pycache__/
+*.pyc
+backend/foodcheckin.db
+backend/uploads/
+
+# Environment
+.env
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Xcode
+*.xcuserstate
+*.xcuserdatad/
+xcuserdata/
+DerivedData/
+build/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.hmap
+*.ipa
+*.xcworkspace/xcuserdata/
+
+# IDE
+.idea/
+.vscode/

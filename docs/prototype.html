@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoodCheckIn 原型</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  background: #1a1a1a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+.phone {
+  width: 393px;
+  height: 852px;
+  background: #FAF5EE;
+  border-radius: 48px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  border: 8px solid #2a2a2a;
+}
+.screen {
+  width: 100%;
+  height: 100%;
+  display: none;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.screen.active { display: flex; }
+
+/* Colors */
+:root {
+  --primary: #C29A6B;
+  --title: #594026;
+  --bg: #FAF5EE;
+  --gray-bg: #F2F2F7;
+  --secondary: #999;
+}
+
+/* Status bar */
+.status-bar {
+  height: 54px;
+  padding: 14px 24px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ===== LOGIN PAGE ===== */
+#login {
+  justify-content: center;
+  align-items: center;
+  padding: 0 40px;
+}
+#login .logo {
+  font-size: 60px;
+  margin-bottom: 16px;
+}
+#login h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--title);
+  margin-bottom: 8px;
+}
+#login .subtitle {
+  font-size: 15px;
+  color: var(--secondary);
+  margin-bottom: 80px;
+}
+#login .btn {
+  width: 100%;
+  height: 50px;
+  border-radius: 25px;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+#login .btn-apple {
+  background: #000;
+  color: #fff;
+}
+#login .btn-phone {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* ===== TAB BAR ===== */
+.tab-bar {
+  height: 83px;
+  background: #fff;
+  border-top: 0.5px solid #e0e0e0;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 8px;
+  position: relative;
+}
+.tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-size: 10px;
+  color: var(--secondary);
+}
+.tab-item.active { color: var(--primary); }
+.tab-item .icon { font-size: 22px; }
+.tab-plus {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 28px;
+  font-weight: 300;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: -20px;
+}
+
+/* ===== CALENDAR PAGE ===== */
+#calendar .content {
+  flex: 1;
+  padding: 0 16px;
+  overflow-y: auto;
+}
+#calendar .header {
+  text-align: center;
+  padding: 16px 0 20px;
+}
+#calendar .header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--title);
+}
+#calendar .header p {
+  font-size: 14px;
+  color: var(--secondary);
+  margin-top: 4px;
+}
+/* Year-Month Picker */
+.ym-picker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 16px;
+  margin-top: 8px;
+}
+.ym-picker select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 6px 24px 6px 10px;
+  border-radius: 8px;
+  border: 1.5px solid var(--primary);
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23C29A6B'/%3E%3C/svg%3E") no-repeat right 8px center;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--title);
+  cursor: pointer;
+  outline: none;
+}
+.ym-picker select:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(194,154,107,0.2); }
+/* Day Detail Panel */
+.day-detail-panel {
+  display: none;
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--bg);
+  z-index: 90;
+  flex-direction: column;
+}
+.day-detail-panel.active { display: flex; }
+.day-detail-nav {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: #fff;
+  border-bottom: 0.5px solid #e0e0e0;
+}
+.day-detail-nav .back { font-size: 16px; color: #007AFF; background: none; border: none; cursor: pointer; }
+.day-detail-nav .title { font-size: 17px; font-weight: 600; color: var(--title); }
+.day-detail-nav .spacer { width: 40px; }
+.day-detail-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.checkin-card {
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.checkin-card-photo {
+  width: 100%;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 60px;
+  position: relative;
+}
+.checkin-card-photo .live-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.checkin-card-photo .live-badge::before {
+  content: '◉';
+  font-size: 9px;
+  color: #FFD60A;
+}
+.checkin-card-body {
+  padding: 14px 16px;
+}
+.checkin-card-body .place { font-size: 16px; font-weight: 600; color: var(--title); }
+.checkin-card-body .address { font-size: 12px; color: var(--secondary); margin-top: 2px; }
+.checkin-card-body .meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.checkin-card-body .meta .rating-badge {
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  background: rgba(194,154,107,0.15);
+  color: var(--title);
+}
+.checkin-card-body .meta .category-badge {
+  font-size: 13px;
+}
+.checkin-card-body .meta .amount {
+  font-size: 12px;
+  color: var(--secondary);
+}
+.checkin-card-body .note {
+  font-size: 13px;
+  color: #666;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+.checkin-card-body .tags {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.checkin-card-body .tags span {
+  font-size: 11px;
+  color: var(--primary);
+  padding: 3px 8px;
+  background: rgba(194,154,107,0.1);
+  border-radius: 10px;
+}
+
+/* ===== Monthly Stats Panel ===== */
+.month-stats-panel {
+  display: none;
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--bg);
+  z-index: 90;
+  flex-direction: column;
+}
+.month-stats-panel.active { display: flex; }
+.month-stats-nav {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: #fff;
+  border-bottom: 0.5px solid #e0e0e0;
+}
+.month-stats-nav .back { font-size: 16px; color: #007AFF; background: none; border: none; cursor: pointer; }
+.month-stats-nav .title { font-size: 17px; font-weight: 600; color: var(--title); }
+.month-stats-nav .spacer { width: 40px; }
+.month-stats-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+.month-stats-summary {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.month-stats-summary .ms-card {
+  flex: 1;
+  background: #fff;
+  border-radius: 12px;
+  padding: 14px;
+  text-align: center;
+}
+.ms-card .ms-num {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary);
+}
+.ms-card .ms-label {
+  font-size: 12px;
+  color: var(--secondary);
+  margin-top: 2px;
+}
+.month-stats-table {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.ms-table-header {
+  display: grid;
+  grid-template-columns: 80px 1fr 50px;
+  padding: 12px 14px;
+  background: rgba(194,154,107,0.1);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--title);
+}
+.ms-table-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 50px;
+  padding: 12px 14px;
+  border-bottom: 0.5px solid #f0f0f0;
+  align-items: center;
+}
+.ms-table-row:last-child { border-bottom: none; }
+.ms-table-row .ms-date {
+  font-size: 13px;
+  color: var(--title);
+  font-weight: 500;
+}
+.ms-table-row .ms-date .ms-count {
+  font-size: 11px;
+  color: var(--secondary);
+  font-weight: 400;
+}
+.ms-table-row .ms-places {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ms-table-row .ms-places .ms-place {
+  font-size: 13px;
+  color: var(--title);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.ms-table-row .ms-places .ms-place .ms-emoji {
+  font-size: 14px;
+}
+.ms-table-row .ms-times {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary);
+  text-align: center;
+}
+.calendar-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+}
+.cal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.cal-header span { font-size: 16px; font-weight: 600; color: var(--title); }
+.cal-header button { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--secondary); }
+.cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 12px;
+  color: var(--secondary);
+  margin-bottom: 8px;
+}
+.cal-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  gap: 4px;
+}
+.cal-day {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  margin: 0 auto;
+  border-radius: 50%;
+  color: var(--title);
+}
+.cal-day.has-checkin {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.cal-day.has-checkin:active {
+  transform: scale(0.85);
+}
+.cal-day.today {
+  border: 2px solid var(--primary);
+}
+.stats-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  padding-bottom: 16px;
+}
+.stat-card {
+  flex: 1;
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+}
+.stat-card .label { font-size: 12px; color: var(--secondary); }
+.stat-card .value { font-size: 28px; font-weight: 700; color: var(--title); }
+.stat-card .unit { font-size: 12px; color: var(--secondary); }
+.photo-stack {
+  flex: 1;
+  background: #fff;
+  border-radius: 16px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s;
+  overflow: hidden;
+  position: relative;
+}
+.photo-stack:active { transform: scale(0.96); }
+.photo-stack .photo-thumb {
+  width: 54px; height: 66px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  position: absolute;
+}
+.photo-stack .photo-thumb:nth-child(1) { transform: rotate(-8deg); left: calc(50% - 52px); }
+.photo-stack .photo-thumb:nth-child(2) { transform: rotate(0deg); z-index: 1; }
+.photo-stack .photo-thumb:nth-child(3) { transform: rotate(8deg); left: calc(50% + 2px); }
+.photo-stack .empty-hint {
+  font-size: 13px;
+  color: var(--secondary);
+}
+
+/* ===== PHOTO GALLERY MODAL ===== */
+.gallery-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--bg);
+  z-index: 100;
+  display: none;
+  flex-direction: column;
+}
+.gallery-overlay.active { display: flex; }
+.gallery-nav {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-bottom: 0.5px solid #e0e0e0;
+  background: #fff;
+}
+.gallery-nav .back { font-size: 16px; color: #007AFF; background: none; border: none; cursor: pointer; }
+.gallery-nav .title { font-size: 17px; font-weight: 600; color: var(--title); }
+.gallery-nav .spacer { width: 40px; }
+.gallery-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 16px;
+}
+.gallery-date-group {
+  margin-top: 20px;
+}
+.gallery-date-group .date-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--title);
+  margin-bottom: 10px;
+}
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+.gallery-item {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+}
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.gallery-item .photo-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+}
+.gallery-item .live-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  letter-spacing: 0.5px;
+}
+.gallery-item .live-badge::before {
+  content: '◉';
+  font-size: 8px;
+  color: #FFD60A;
+}
+.gallery-item .place-name {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 4px 6px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.6));
+  color: #fff;
+  font-size: 10px;
+  font-weight: 500;
+}
+/* Live photo hover animation */
+.gallery-item.live:hover .photo-placeholder {
+  animation: livePulse 1s ease-in-out infinite;
+}
+@keyframes livePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* ===== MAP PAGE ===== */
+#map .map-bg {
+  flex: 1;
+  background: #e8dfd3;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.map-bg .fake-map {
+  font-size: 100px;
+  opacity: 0.3;
+}
+.map-top-bar {
+  position: absolute;
+  top: 8px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.map-top-bar .circle-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(10px);
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.map-top-bar .region-btn {
+  padding: 8px 14px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(10px);
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--title);
+  cursor: pointer;
+}
+.map-pins {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+}
+.map-pin {
+  position: absolute;
+  font-size: 28px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.map-pin:hover { transform: scale(1.3); }
+
+/* ===== CHECKIN PAGE ===== */
+#checkin {
+  background: var(--bg);
+}
+#checkin .nav {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: #fff;
+  border-bottom: 0.5px solid #e0e0e0;
+}
+#checkin .nav .cancel { color: #007AFF; font-size: 16px; background: none; border: none; cursor: pointer; }
+#checkin .nav .title { font-size: 17px; font-weight: 600; }
+#checkin .nav .publish { color: var(--primary); font-size: 16px; font-weight: 600; background: none; border: none; cursor: pointer; }
+#checkin .form {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.form-section label {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  color: #000;
+  margin-bottom: 8px;
+}
+.photo-picker {
+  width: 100%;
+  height: 150px;
+  background: var(--gray-bg);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.photo-picker .cam { font-size: 36px; }
+.photo-picker span { font-size: 15px; color: var(--secondary); }
+.location-row {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  background: var(--gray-bg);
+  border-radius: 12px;
+  gap: 10px;
+  cursor: pointer;
+}
+.location-row .pin { font-size: 20px; }
+.location-row .text { flex: 1; font-size: 15px; color: var(--secondary); }
+.location-row .arrow { font-size: 16px; color: var(--secondary); }
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chip {
+  padding: 8px 14px;
+  border-radius: 16px;
+  font-size: 13px;
+  cursor: pointer;
+  border: none;
+  background: var(--gray-bg);
+  color: var(--title);
+}
+.chip.active {
+  background: var(--primary);
+  color: #fff;
+}
+.rating-chips {
+  display: flex;
+  gap: 8px;
+}
+.rating-chip {
+  padding: 8px 14px;
+  border-radius: 18px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  background: var(--gray-bg);
+  color: var(--title);
+}
+.rating-chip.active {
+  background: var(--primary);
+  color: #fff;
+}
+.tag-input-row {
+  display: flex;
+  gap: 8px;
+}
+.tag-input-row input {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: none;
+  background: var(--gray-bg);
+  font-size: 15px;
+  outline: none;
+}
+.tag-input-row button {
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: none;
+  background: var(--primary);
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.tag {
+  padding: 6px 10px;
+  border-radius: 14px;
+  background: rgba(194,154,107,0.2);
+  color: var(--primary);
+  font-size: 12px;
+}
+.note-input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: none;
+  background: var(--gray-bg);
+  font-size: 15px;
+  resize: none;
+  height: 88px;
+  outline: none;
+  font-family: inherit;
+}
+.amount-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.amount-row input {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: none;
+  background: var(--gray-bg);
+  font-size: 15px;
+  outline: none;
+}
+.segment {
+  display: flex;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--gray-bg);
+}
+.segment button {
+  padding: 10px 16px;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+  background: var(--gray-bg);
+  color: var(--title);
+}
+.segment button.active {
+  background: var(--primary);
+  color: #fff;
+}
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.toggle-row span { font-size: 15px; }
+.toggle {
+  width: 51px;
+  height: 31px;
+  border-radius: 16px;
+  background: var(--primary);
+  position: relative;
+  cursor: pointer;
+  border: none;
+}
+.toggle::after {
+  content: '';
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background: #fff;
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* ===== STATS PAGE ===== */
+#stats .content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+#stats .page-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--title);
+  text-align: center;
+  padding: 16px 0;
+}
+.stats-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+}
+.stats-card h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--title);
+  margin-bottom: 12px;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  text-align: center;
+}
+.stats-grid .num { font-size: 24px; font-weight: 700; color: var(--primary); }
+.stats-grid .lbl { font-size: 12px; color: var(--secondary); }
+.cat-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+.cat-row .name { font-size: 14px; color: var(--title); flex: 1; }
+.cat-row .count { font-size: 14px; font-weight: 600; color: var(--primary); width: 30px; text-align: right; }
+.cat-bar {
+  width: 60px;
+  height: 8px;
+  background: var(--gray-bg);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.cat-bar-fill {
+  height: 100%;
+  background: rgba(194,154,107,0.5);
+  border-radius: 4px;
+}
+
+/* ===== PROFILE PAGE ===== */
+#profile .content {
+  flex: 1;
+  overflow-y: auto;
+}
+#profile .page-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--title);
+  padding: 16px 16px 20px;
+}
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: #fff;
+  margin: 0 16px;
+  border-radius: 16px;
+}
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(194,154,107,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary);
+}
+.profile-info .name { font-size: 17px; font-weight: 600; color: var(--title); }
+.profile-info .phone { font-size: 13px; color: var(--secondary); }
+.menu-group {
+  margin: 16px;
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+}
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 0.5px solid #f0f0f0;
+  cursor: pointer;
+}
+.menu-item:last-child { border-bottom: none; }
+.menu-item .mi-icon { font-size: 18px; margin-right: 12px; }
+.menu-item .mi-label { flex: 1; font-size: 15px; color: var(--title); }
+.menu-item .mi-arrow { font-size: 14px; color: var(--secondary); }
+.menu-item.danger .mi-label { color: #FF3B30; }
+.menu-item.warning .mi-label { color: #FF9500; }
+
+/* ===== FEED PAGE ===== */
+#feed { background: var(--bg); }
+#feed .nav {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: var(--bg);
+}
+#feed .nav .title { font-size: 17px; font-weight: 600; }
+#feed .nav .actions { display: flex; gap: 16px; font-size: 20px; cursor: pointer; }
+#feed .feed-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.feed-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.feed-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.feed-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(194,154,107,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+}
+.feed-user .nickname { font-size: 14px; font-weight: 600; color: var(--title); }
+.feed-user .time { font-size: 12px; color: var(--secondary); }
+.feed-emoji { margin-left: auto; font-size: 22px; }
+.feed-photo {
+  width: 100%;
+  height: 180px;
+  background: linear-gradient(135deg, #f5e6d3, #e8d5c0);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+}
+.feed-place {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.feed-place .name { font-size: 15px; font-weight: 600; color: var(--title); }
+.feed-rating {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: rgba(76,175,80,0.15);
+}
+.feed-note { font-size: 13px; color: var(--secondary); margin-bottom: 8px; }
+.feed-tags { display: flex; gap: 6px; margin-bottom: 8px; }
+.feed-tag {
+  font-size: 11px;
+  color: var(--primary);
+  padding: 3px 6px;
+  background: rgba(194,154,107,0.1);
+  border-radius: 8px;
+}
+.feed-actions { font-size: 13px; color: var(--secondary); cursor: pointer; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- LOGIN -->
+  <div class="screen active" id="login">
+    <div class="logo">📍</div>
+    <h1>吃喝玩乐打卡</h1>
+    <p class="subtitle">记录你的探索足迹</p>
+    <button class="btn btn-apple" onclick="showScreen('calendar')">🍎 Sign in with Apple</button>
+    <button class="btn btn-phone" onclick="showScreen('calendar')">📱 手机号登录</button>
+  </div>
+
+  <!-- CALENDAR -->
+  <div class="screen" id="calendar">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="content">
+      <div class="header">
+        <h1>今天</h1>
+        <p>2026年7月17日, 星期五</p>
+      </div>
+      <div class="ym-picker">
+        <select id="year-picker" onchange="jumpToMonth()">
+          <option value="2024">2024年</option>
+          <option value="2025">2025年</option>
+          <option value="2026" selected>2026年</option>
+        </select>
+        <select id="month-picker" onchange="jumpToMonth()">
+          <option value="1">1月</option>
+          <option value="2">2月</option>
+          <option value="3">3月</option>
+          <option value="4">4月</option>
+          <option value="5">5月</option>
+          <option value="6">6月</option>
+          <option value="7" selected>7月</option>
+          <option value="8">8月</option>
+          <option value="9">9月</option>
+          <option value="10">10月</option>
+          <option value="11">11月</option>
+          <option value="12">12月</option>
+        </select>
+      </div>
+      <div class="calendar-card">
+        <div class="cal-header">
+          <button onclick="prevMonth()">‹</button>
+          <span id="cal-title">2026年7月</span>
+          <button onclick="nextMonth()">›</button>
+        </div>
+        <div class="cal-weekdays">
+          <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+        </div>
+        <div class="cal-days" id="cal-days">
+          <div class="cal-day"></div><div class="cal-day"></div><div class="cal-day">1</div><div class="cal-day">2</div><div class="cal-day has-checkin" onclick="openDayDetail(3)">3</div><div class="cal-day">4</div><div class="cal-day">5</div>
+          <div class="cal-day has-checkin" onclick="openDayDetail(6)">6</div><div class="cal-day">7</div><div class="cal-day">8</div><div class="cal-day">9</div><div class="cal-day has-checkin" onclick="openDayDetail(10)">10</div><div class="cal-day">11</div><div class="cal-day has-checkin" onclick="openDayDetail(12)">12</div>
+          <div class="cal-day">13</div><div class="cal-day has-checkin" onclick="openDayDetail(14)">14</div><div class="cal-day">15</div><div class="cal-day">16</div><div class="cal-day today">17</div><div class="cal-day">18</div><div class="cal-day">19</div>
+          <div class="cal-day">20</div><div class="cal-day">21</div><div class="cal-day">22</div><div class="cal-day">23</div><div class="cal-day">24</div><div class="cal-day">25</div><div class="cal-day">26</div>
+          <div class="cal-day">27</div><div class="cal-day">28</div><div class="cal-day">29</div><div class="cal-day">30</div><div class="cal-day">31</div><div class="cal-day"></div><div class="cal-day"></div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card" id="stat-card" onclick="openMonthStats()" style="cursor:pointer;transition:transform 0.2s">
+          <div class="label">本月</div>
+          <div><span class="value" id="stat-count">6</span><span class="unit"> 次打卡</span></div>
+          <div class="unit"><span id="stat-places">5</span> 店铺</div>
+        </div>
+        <div class="photo-stack" id="photo-stack" onclick="openGallery()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Month Stats Panel -->
+    <div class="month-stats-panel" id="month-stats-panel">
+      <div class="month-stats-nav">
+        <button class="back" onclick="closeMonthStats()">‹ 返回</button>
+        <span class="title" id="month-stats-title">7月统计</span>
+        <span class="spacer"></span>
+      </div>
+      <div class="month-stats-content">
+        <div class="month-stats-summary">
+          <div class="ms-card"><div class="ms-num">6</div><div class="ms-label">打卡次数</div></div>
+          <div class="ms-card"><div class="ms-num">5</div><div class="ms-label">店铺数</div></div>
+          <div class="ms-card"><div class="ms-num">¥1,179</div><div class="ms-label">总消费</div></div>
+        </div>
+        <div class="month-stats-table" id="month-stats-table">
+          <div class="ms-table-header">
+            <span>日期</span>
+            <span>打卡店铺名</span>
+            <span>次数</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Day Detail Panel -->
+    <div class="day-detail-panel" id="day-detail-panel">
+      <div class="day-detail-nav">
+        <button class="back" onclick="closeDayDetail()">‹ 返回</button>
+        <span class="title" id="day-detail-title">7月3日 打卡</span>
+        <span class="spacer"></span>
+      </div>
+      <div class="day-detail-content" id="day-detail-content">
+      </div>
+    </div>
+
+    <!-- Photo Gallery Overlay -->
+    <div class="gallery-overlay" id="gallery-overlay">
+      <div class="gallery-nav">
+        <button class="back" onclick="closeGallery()">‹ 返回</button>
+        <span class="title">照片墙</span>
+        <span class="spacer"></span>
+      </div>
+      <div class="gallery-content">
+        <div class="gallery-date-group">
+          <div class="date-label">7月14日 周一</div>
+          <div class="gallery-grid">
+            <div class="gallery-item live">
+              <div class="photo-placeholder" style="background:linear-gradient(135deg,#f8e8d4,#e6c9a8)">🍜</div>
+              <span class="live-badge">LIVE</span>
+              <span class="place-name">一兰拉面</span>
+            </div>
+          </div>
+        </div>
+        <div class="gallery-date-group">
+          <div class="date-label">7月12日 周六</div>
+          <div class="gallery-grid">
+            <div class="gallery-item live">
+              <div class="photo-placeholder" style="background:linear-gradient(135deg,#d4e8d4,#a8d4a8)">🥗</div>
+              <span class="live-badge">LIVE</span>
+              <span class="place-name">Wagas</span>
+            </div>
+            <div class="gallery-item">
+              <div class="photo-placeholder" style="background:linear-gradient(135deg,#e8d4f0,#d4a8e6)">🍰</div>
+              <span class="place-name">Lady M</span>
+            </div>
+          </div>
+        </div>
+        <div class="gallery-date-group">
+          <div class="date-label">7月10日 周四</div>
+          <div class="gallery-grid">
+            <div class="gallery-item">
+              <div class="photo-placeholder" style="background:linear-gradient(135deg,#f0e8d4,#e6d4a8)">☕</div>
+              <span class="place-name">% Arabica</span>
+            </div>
+          </div>
+        </div>
+        <div class="gallery-date-group">
+          <div class="date-label">7月6日 周日</div>
+          <div class="gallery-grid">
+            <div class="gallery-item live">
+              <div class="photo-placeholder" style="background:linear-gradient(135deg,#f8d4d4,#e6a8a8)">🍣</div>
+              <span class="live-badge">LIVE</span>
+              <span class="place-name">鮨 · 匠心</span>
+            </div>
+          </div>
+        </div>
+        <div class="gallery-date-group">
+          <div class="date-label">7月3日 周四</div>
+          <div class="gallery-grid">
+            <div class="gallery-item">
+              <div class="photo-placeholder" style="background:linear-gradient(135deg,#d4e0f8,#a8c4e6)">🎮</div>
+              <span class="place-name">Round1</span>
+            </div>
+            <div class="gallery-item live">
+              <div class="photo-placeholder" style="background:linear-gradient(135deg,#f8f0d4,#e6dca8)">🍻</div>
+              <span class="live-badge">LIVE</span>
+              <span class="place-name">Perry's</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-item active" onclick="showScreen('calendar')"><span class="icon">📅</span><span>日历</span></button>
+      <button class="tab-item" onclick="showScreen('map')"><span class="icon">🗺️</span><span>地图</span></button>
+      <button class="tab-plus" onclick="showScreen('checkin')">+</button>
+      <button class="tab-item" onclick="showScreen('stats')"><span class="icon">📊</span><span>统计</span></button>
+      <button class="tab-item" onclick="showScreen('profile')"><span class="icon">👤</span><span>我的</span></button>
+    </div>
+  </div>
+
+  <!-- MAP -->
+  <div class="screen" id="map">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="map-bg">
+      <div class="fake-map">🗺️</div>
+      <div class="map-top-bar">
+        <button class="circle-btn">☰</button>
+        <button class="region-btn">上海 ↕</button>
+        <button class="circle-btn">✕</button>
+      </div>
+      <div class="map-pins">
+        <span class="map-pin" style="top:35%;left:30%">🍽️</span>
+        <span class="map-pin" style="top:45%;left:55%">☕</span>
+        <span class="map-pin" style="top:60%;left:40%">🍽️</span>
+        <span class="map-pin" style="top:50%;left:70%">🎮</span>
+        <span class="map-pin" style="top:70%;left:60%">🛍️</span>
+      </div>
+    </div>
+    <div class="tab-bar">
+      <button class="tab-item" onclick="showScreen('calendar')"><span class="icon">📅</span><span>日历</span></button>
+      <button class="tab-item active" onclick="showScreen('map')"><span class="icon">🗺️</span><span>地图</span></button>
+      <button class="tab-plus" onclick="showScreen('checkin')">+</button>
+      <button class="tab-item" onclick="showScreen('stats')"><span class="icon">📊</span><span>统计</span></button>
+      <button class="tab-item" onclick="showScreen('profile')"><span class="icon">👤</span><span>我的</span></button>
+    </div>
+  </div>
+
+  <!-- CHECKIN -->
+  <div class="screen" id="checkin">
+    <div class="nav">
+      <button class="cancel" onclick="showScreen('calendar')">取消</button>
+      <span class="title">打卡</span>
+      <button class="publish">发布</button>
+    </div>
+    <div class="form">
+      <div class="form-section">
+        <label>照片</label>
+        <div class="photo-picker">
+          <span class="cam">📷</span>
+          <span>选择照片</span>
+        </div>
+      </div>
+      <div class="form-section">
+        <label>地点</label>
+        <div class="location-row">
+          <span class="pin">📍</span>
+          <span class="text">选择地点</span>
+          <span class="arrow">›</span>
+        </div>
+      </div>
+      <div class="form-section">
+        <label>类别</label>
+        <div class="chips">
+          <button class="chip active">🍽️ 餐饮</button>
+          <button class="chip">☕ 饮品</button>
+          <button class="chip">🎮 娱乐</button>
+          <button class="chip">🛍️ 购物</button>
+          <button class="chip">🏖️ 景点</button>
+          <button class="chip">📌 其他</button>
+        </div>
+      </div>
+      <div class="form-section">
+        <label>评分</label>
+        <div class="rating-chips">
+          <button class="rating-chip">夯🔥</button>
+          <button class="rating-chip active">不错👍</button>
+          <button class="rating-chip">一般😐</button>
+          <button class="rating-chip">拉💩</button>
+        </div>
+      </div>
+      <div class="form-section">
+        <label>标签</label>
+        <div class="tag-input-row">
+          <input placeholder="添加标签">
+          <button>添加</button>
+        </div>
+        <div class="tags-list">
+          <span class="tag">日料 ×</span>
+          <span class="tag">约会 ×</span>
+          <span class="tag">性价比 ×</span>
+        </div>
+      </div>
+      <div class="form-section">
+        <label>备注</label>
+        <textarea class="note-input" placeholder="写点什么..."></textarea>
+      </div>
+      <div class="form-section">
+        <label>消费金额（可选）</label>
+        <div class="amount-row">
+          <input placeholder="¥">
+          <div class="segment">
+            <button class="active">人均</button>
+            <button>总计</button>
+          </div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="toggle-row">
+          <span>公开（好友可见）</span>
+          <button class="toggle"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="screen" id="stats">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="page-title">统计</div>
+    <div class="content">
+      <div class="stats-card">
+        <h3>探索足迹</h3>
+        <div class="stats-grid">
+          <div><div class="num">128</div><div class="lbl">总打卡</div></div>
+          <div><div class="num">67</div><div class="lbl">家店铺</div></div>
+          <div><div class="num">3</div><div class="lbl">个国家</div></div>
+          <div><div class="num">5</div><div class="lbl">个省份</div></div>
+          <div><div class="num">8</div><div class="lbl">个城市</div></div>
+          <div><div class="num">15</div><div class="lbl">个区县</div></div>
+        </div>
+      </div>
+      <div class="stats-card">
+        <h3>类别分布</h3>
+        <div class="cat-row"><span>🍽️</span><span class="name">餐饮</span><span class="count">52</span><div class="cat-bar"><div class="cat-bar-fill" style="width:65%"></div></div></div>
+        <div class="cat-row"><span>☕</span><span class="name">饮品</span><span class="count">31</span><div class="cat-bar"><div class="cat-bar-fill" style="width:40%"></div></div></div>
+        <div class="cat-row"><span>🎮</span><span class="name">娱乐</span><span class="count">20</span><div class="cat-bar"><div class="cat-bar-fill" style="width:25%"></div></div></div>
+        <div class="cat-row"><span>🛍️</span><span class="name">购物</span><span class="count">15</span><div class="cat-bar"><div class="cat-bar-fill" style="width:19%"></div></div></div>
+        <div class="cat-row"><span>🏖️</span><span class="name">景点</span><span class="count">10</span><div class="cat-bar"><div class="cat-bar-fill" style="width:13%"></div></div></div>
+      </div>
+      <div class="stats-card">
+        <h3>消费统计</h3>
+        <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+          <div><div style="font-size:12px;color:var(--secondary)">总消费</div><div style="font-size:22px;font-weight:700;color:var(--primary)">¥12,680</div></div>
+          <div style="text-align:right"><div style="font-size:12px;color:var(--secondary)">记录笔数</div><div style="font-size:22px;font-weight:700;color:var(--title)">89</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="tab-bar">
+      <button class="tab-item" onclick="showScreen('calendar')"><span class="icon">📅</span><span>日历</span></button>
+      <button class="tab-item" onclick="showScreen('map')"><span class="icon">🗺️</span><span>地图</span></button>
+      <button class="tab-plus" onclick="showScreen('checkin')">+</button>
+      <button class="tab-item active" onclick="showScreen('stats')"><span class="icon">📊</span><span>统计</span></button>
+      <button class="tab-item" onclick="showScreen('profile')"><span class="icon">👤</span><span>我的</span></button>
+    </div>
+  </div>
+
+  <!-- PROFILE -->
+  <div class="screen" id="profile">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="page-title" style="padding:16px">我的</div>
+    <div class="content">
+      <div class="profile-header">
+        <div class="avatar">李</div>
+        <div class="profile-info">
+          <div class="name">李同学</div>
+          <div class="phone">138****8888</div>
+        </div>
+      </div>
+      <div class="menu-group">
+        <div class="menu-item"><span class="mi-icon">✏️</span><span class="mi-label">编辑资料</span><span class="mi-arrow">›</span></div>
+        <div class="menu-item" onclick="showScreen('feed')"><span class="mi-icon">💬</span><span class="mi-label">好友动态</span><span class="mi-arrow">›</span></div>
+        <div class="menu-item"><span class="mi-icon">👥</span><span class="mi-label">好友管理</span><span class="mi-arrow">›</span></div>
+        <div class="menu-item"><span class="mi-icon">📄</span><span class="mi-label">草稿箱</span><span class="mi-arrow">›</span></div>
+      </div>
+      <div class="menu-group">
+        <div class="menu-item"><span class="mi-icon">ℹ️</span><span class="mi-label">关于</span><span class="mi-arrow">›</span></div>
+      </div>
+      <div class="menu-group">
+        <div class="menu-item warning"><span class="mi-icon">🚪</span><span class="mi-label">退出登录</span></div>
+        <div class="menu-item danger"><span class="mi-icon">⚠️</span><span class="mi-label">删除账号</span></div>
+      </div>
+    </div>
+    <div class="tab-bar">
+      <button class="tab-item" onclick="showScreen('calendar')"><span class="icon">📅</span><span>日历</span></button>
+      <button class="tab-item" onclick="showScreen('map')"><span class="icon">🗺️</span><span>地图</span></button>
+      <button class="tab-plus" onclick="showScreen('checkin')">+</button>
+      <button class="tab-item" onclick="showScreen('stats')"><span class="icon">📊</span><span>统计</span></button>
+      <button class="tab-item active" onclick="showScreen('profile')"><span class="icon">👤</span><span>我的</span></button>
+    </div>
+  </div>
+
+  <!-- FEED -->
+  <div class="screen" id="feed">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="nav">
+      <button class="cancel" onclick="showScreen('profile')" style="font-size:20px">‹</button>
+      <span class="title">动态</span>
+      <div class="actions"><span>🔔</span><span>➕</span></div>
+    </div>
+    <div class="feed-content">
+      <div class="feed-card">
+        <div class="feed-card-header">
+          <div class="feed-avatar">王</div>
+          <div class="feed-user"><div class="nickname">王小明</div><div class="time">2小时前</div></div>
+          <span class="feed-emoji">🍽️</span>
+        </div>
+        <div class="feed-photo">🍜</div>
+        <div class="feed-place"><span class="name">一兰拉面（南京东路店）</span><span class="feed-rating">不错👍</span></div>
+        <div class="feed-note">汤底浓郁，面条劲道，排了半小时队但值得</div>
+        <div class="feed-tags"><span class="feed-tag">#日料</span><span class="feed-tag">#拉面</span></div>
+        <div class="feed-actions">💬 评论</div>
+      </div>
+      <div class="feed-card">
+        <div class="feed-card-header">
+          <div class="feed-avatar">张</div>
+          <div class="feed-user"><div class="nickname">张小花</div><div class="time">昨天</div></div>
+          <span class="feed-emoji">☕</span>
+        </div>
+        <div class="feed-photo">☕</div>
+        <div class="feed-place"><span class="name">% Arabica</span><span class="feed-rating">夯🔥</span></div>
+        <div class="feed-note">拿铁绝绝子，环境也很出片</div>
+        <div class="feed-tags"><span class="feed-tag">#咖啡</span><span class="feed-tag">#拍照</span></div>
+        <div class="feed-actions">💬 评论</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  closeGallery();
+  closeDayDetail();
+}
+
+function openGallery() {
+  // Rebuild gallery based on current month
+  const galleryContent = document.querySelector('#gallery-overlay .gallery-content');
+  let html = '';
+
+  // Gather dates descending
+  for (let d = 31; d >= 1; d--) {
+    const key = `${currentYear}-${currentMonth}-${d}`;
+    if (checkinData[key]) {
+      const weekdays = ['周日','周一','周二','周三','周四','周五','周六'];
+      const date = new Date(currentYear, currentMonth - 1, d);
+      const weekday = weekdays[date.getDay()];
+      html += `<div class="gallery-date-group">`;
+      html += `<div class="date-label">${currentMonth}月${d}日 ${weekday}</div>`;
+      html += `<div class="gallery-grid">`;
+      checkinData[key].forEach(item => {
+        html += `
+          <div class="gallery-item${item.live ? ' live' : ''}">
+            <div class="photo-placeholder" style="background:linear-gradient(135deg,${item.bg})">${item.emoji}</div>
+            ${item.live ? '<span class="live-badge">LIVE</span>' : ''}
+            <span class="place-name">${item.place}</span>
+          </div>
+        `;
+      });
+      html += `</div></div>`;
+    }
+  }
+
+  if (!html) {
+    html = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;color:var(--secondary)">
+      <span style="font-size:48px;margin-bottom:12px">📷</span>
+      <span style="font-size:15px">本月暂无照片</span>
+    </div>`;
+  }
+
+  galleryContent.innerHTML = html;
+  document.getElementById('gallery-overlay').classList.add('active');
+}
+function closeGallery() {
+  document.getElementById('gallery-overlay').classList.remove('active');
+}
+
+// ===== Calendar Data =====
+const checkinData = {
+  '2026-7-3': [
+    { place: 'Round1 娱乐城', address: '南京西路1168号', emoji: '🎮', bg: '#d4e0f8,#a8c4e6', category: '🎮 娱乐', rating: '不错👍', note: '和朋友打了三小时太鼓达人', tags: ['周末', '朋友'], amount: '¥180 人均', live: false },
+    { place: "Perry's", address: '永嘉路52号', emoji: '🍻', bg: '#f8f0d4,#e6dca8', category: '🍽️ 餐饮', rating: '夯🔥', note: '精酿种类很多，氛围超好', tags: ['酒吧', '精酿'], amount: '¥220 人均', live: true }
+  ],
+  '2026-7-6': [
+    { place: '鮨 · 匠心', address: '淮海中路999号', emoji: '🍣', bg: '#f8d4d4,#e6a8a8', category: '🍽️ 餐饮', rating: '夯🔥', note: '板前师傅手艺太赞了，金枪鱼大腹入口即化', tags: ['日料', '约会', 'omakase'], amount: '¥680 人均', live: true }
+  ],
+  '2026-7-10': [
+    { place: '% Arabica', address: '武康路226号', emoji: '☕', bg: '#f0e8d4,#e6d4a8', category: '☕ 饮品', rating: '不错👍', note: '拿铁拉花漂亮，门口适合拍照', tags: ['咖啡', '拍照'], amount: '¥48 人均', live: false }
+  ],
+  '2026-7-12': [
+    { place: 'Wagas', address: '新天地太平湖路68号', emoji: '🥗', bg: '#d4e8d4,#a8d4a8', category: '🍽️ 餐饮', rating: '不错👍', note: '轻食沙拉很新鲜', tags: ['轻食', '健康'], amount: '¥88 人均', live: true },
+    { place: 'Lady M', address: '新天地南里广场', emoji: '🍰', bg: '#e8d4f0,#d4a8e6', category: '☕ 饮品', rating: '不错👍', note: '千层永远的神', tags: ['甜品', '下午茶'], amount: '¥95 人均', live: false }
+  ],
+  '2026-7-14': [
+    { place: '一兰拉面', address: '南京东路步行街88号', emoji: '🍜', bg: '#f8e8d4,#e6c9a8', category: '🍽️ 餐饮', rating: '不错👍', note: '汤底浓郁，面条劲道，排了半小时队但值得', tags: ['日料', '拉面'], amount: '¥58', live: true }
+  ]
+};
+
+// Current calendar state
+let currentYear = 2026;
+let currentMonth = 7;
+
+function jumpToMonth() {
+  currentYear = parseInt(document.getElementById('year-picker').value);
+  currentMonth = parseInt(document.getElementById('month-picker').value);
+  renderCalendar();
+}
+
+function prevMonth() {
+  currentMonth--;
+  if (currentMonth < 1) { currentMonth = 12; currentYear--; }
+  document.getElementById('year-picker').value = currentYear;
+  document.getElementById('month-picker').value = currentMonth;
+  renderCalendar();
+}
+
+function nextMonth() {
+  currentMonth++;
+  if (currentMonth > 12) { currentMonth = 1; currentYear++; }
+  document.getElementById('year-picker').value = currentYear;
+  document.getElementById('month-picker').value = currentMonth;
+  renderCalendar();
+}
+
+function renderCalendar() {
+  document.getElementById('cal-title').textContent = `${currentYear}年${currentMonth}月`;
+  const firstDay = new Date(currentYear, currentMonth - 1, 1).getDay();
+  const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+  const today = new Date();
+  const isCurrentMonth = (currentYear === today.getFullYear() && currentMonth === today.getMonth() + 1);
+
+  let html = '';
+  for (let i = 0; i < firstDay; i++) {
+    html += '<div class="cal-day"></div>';
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = `${currentYear}-${currentMonth}-${d}`;
+    const hasCheckin = checkinData[key];
+    const isToday = isCurrentMonth && d === today.getDate();
+    let classes = 'cal-day';
+    if (hasCheckin) classes += ' has-checkin';
+    if (isToday) classes += ' today';
+    const onclick = hasCheckin ? ` onclick="openDayDetail(${d})"` : '';
+    html += `<div class="${classes}"${onclick}>${d}</div>`;
+  }
+  document.getElementById('cal-days').innerHTML = html;
+  updateMonthPhotos();
+}
+
+function updateMonthPhotos() {
+  // Gather all check-ins for current month
+  const monthItems = [];
+  const placeSet = new Set();
+  for (let d = 1; d <= 31; d++) {
+    const key = `${currentYear}-${currentMonth}-${d}`;
+    if (checkinData[key]) {
+      checkinData[key].forEach(item => {
+        monthItems.push(item);
+        placeSet.add(item.place);
+      });
+    }
+  }
+
+  // Update stats
+  document.getElementById('stat-count').textContent = monthItems.length;
+  document.getElementById('stat-places').textContent = placeSet.size;
+
+  // Update photo stack
+  const stack = document.getElementById('photo-stack');
+  if (monthItems.length === 0) {
+    stack.innerHTML = '<span class="empty-hint">暂无照片</span>';
+  } else {
+    const photos = monthItems.slice(0, 3);
+    stack.innerHTML = photos.map(item =>
+      `<div class="photo-thumb" style="background:linear-gradient(135deg,${item.bg})">${item.emoji}</div>`
+    ).join('');
+  }
+}
+
+function openDayDetail(day) {
+  const key = `${currentYear}-${currentMonth}-${day}`;
+  const items = checkinData[key];
+  if (!items) return;
+
+  document.getElementById('day-detail-title').textContent = `${currentMonth}月${day}日 打卡`;
+  let html = '';
+  items.forEach(item => {
+    html += `
+      <div class="checkin-card">
+        <div class="checkin-card-photo" style="background:linear-gradient(135deg,${item.bg})">
+          ${item.emoji}
+          ${item.live ? '<span class="live-badge">◉ LIVE</span>' : ''}
+        </div>
+        <div class="checkin-card-body">
+          <div class="place">${item.place}</div>
+          <div class="address">${item.address}</div>
+          <div class="meta">
+            <span class="category-badge">${item.category}</span>
+            <span class="rating-badge">${item.rating}</span>
+            <span class="amount">${item.amount}</span>
+          </div>
+          <div class="note">${item.note}</div>
+          <div class="tags">${item.tags.map(t => `<span>#${t}</span>`).join('')}</div>
+        </div>
+      </div>
+    `;
+  });
+  document.getElementById('day-detail-content').innerHTML = html;
+  document.getElementById('day-detail-panel').classList.add('active');
+}
+
+function closeDayDetail() {
+  document.getElementById('day-detail-panel').classList.remove('active');
+}
+
+// ===== Month Stats =====
+function openMonthStats() {
+  document.getElementById('month-stats-title').textContent = `${currentMonth}月统计`;
+  const table = document.getElementById('month-stats-table');
+
+  // Gather all dates for current month, sorted descending
+  const dates = [];
+  let totalCount = 0;
+  let totalAmount = 0;
+  const placeSet = new Set();
+
+  for (let d = 31; d >= 1; d--) {
+    const key = `${currentYear}-${currentMonth}-${d}`;
+    if (checkinData[key]) {
+      dates.push({ day: d, items: checkinData[key] });
+      checkinData[key].forEach(item => {
+        totalCount++;
+        placeSet.add(item.place);
+        // Parse amount
+        const match = item.amount.match(/¥([\d,]+)/);
+        if (match) totalAmount += parseInt(match[1].replace(',', ''));
+      });
+    }
+  }
+
+  // Update summary cards
+  const summaryContainer = document.querySelector('.month-stats-summary');
+  summaryContainer.innerHTML = `
+    <div class="ms-card"><div class="ms-num">${totalCount}</div><div class="ms-label">打卡次数</div></div>
+    <div class="ms-card"><div class="ms-num">${placeSet.size}</div><div class="ms-label">店铺数</div></div>
+    <div class="ms-card"><div class="ms-num">¥${totalAmount.toLocaleString()}</div><div class="ms-label">总消费</div></div>
+  `;
+
+  // Build table
+  let html = `<div class="ms-table-header"><span>日期</span><span>打卡店铺名</span><span>次数</span></div>`;
+
+  if (dates.length === 0) {
+    html += `<div class="ms-table-row" style="justify-content:center;grid-template-columns:1fr;text-align:center;color:var(--secondary);padding:32px 14px;">本月暂无打卡记录</div>`;
+  } else {
+    dates.forEach(dateEntry => {
+      const count = dateEntry.items.length;
+      const placesHtml = dateEntry.items.map(item =>
+        `<div class="ms-place"><span class="ms-emoji">${item.emoji}</span>${item.place}</div>`
+      ).join('');
+      html += `
+        <div class="ms-table-row">
+          <div class="ms-date">${currentMonth}/${String(dateEntry.day).padStart(2,'0')}<br><span class="ms-count">(${count}次)</span></div>
+          <div class="ms-places">${placesHtml}</div>
+          <div class="ms-times">${count}</div>
+        </div>
+      `;
+    });
+  }
+
+  table.innerHTML = html;
+  document.getElementById('month-stats-panel').classList.add('active');
+}
+
+function closeMonthStats() {
+  document.getElementById('month-stats-panel').classList.remove('active');
+}
+
+// Init calendar photos on load
+updateMonthPhotos();
+
+// Chip click interaction
+document.querySelectorAll('.chips .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    chip.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+  });
+});
+document.querySelectorAll('.rating-chips .rating-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    chip.parentElement.querySelectorAll('.rating-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+  });
+});
+document.querySelectorAll('.segment button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,86 @@
+{
+  "type": "FeatureCollection",
+  "_comment": "Placeholder city boundaries. Replace with real GeoJSON from datav.aliyun.com or geojson.cn for accurate city-level polygon data.",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"name": "北京市", "province": "北京市"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[115.42, 39.44], [117.51, 39.44], [117.51, 41.06], [115.42, 41.06], [115.42, 39.44]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "上海市", "province": "上海市"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[120.86, 30.68], [122.12, 30.68], [122.12, 31.87], [120.86, 31.87], [120.86, 30.68]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "广州市", "province": "广东省"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[112.94, 22.53], [114.05, 22.53], [114.05, 23.93], [112.94, 23.93], [112.94, 22.53]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "深圳市", "province": "广东省"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[113.75, 22.45], [114.62, 22.45], [114.62, 22.86], [113.75, 22.86], [113.75, 22.45]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "杭州市", "province": "浙江省"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[118.34, 29.18], [120.72, 29.18], [120.72, 30.57], [118.34, 30.57], [118.34, 29.18]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "成都市", "province": "四川省"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[102.98, 30.09], [104.88, 30.09], [104.88, 31.44], [102.98, 31.44], [102.98, 30.09]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "南京市", "province": "江苏省"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[118.36, 31.23], [119.24, 31.23], [119.24, 32.61], [118.36, 32.61], [118.36, 31.23]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "武汉市", "province": "湖北省"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[113.7, 29.97], [114.88, 29.97], [114.88, 31.36], [113.7, 31.36], [113.7, 29.97]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "重庆市", "province": "重庆市"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[105.29, 28.16], [110.19, 28.16], [110.19, 32.2], [105.29, 32.2], [105.29, 28.16]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"name": "西安市", "province": "陕西省"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[107.63, 33.42], [109.76, 33.42], [109.76, 34.74], [107.63, 34.74], [107.63, 33.42]]]
+      }
+    }
+  ]
+}
