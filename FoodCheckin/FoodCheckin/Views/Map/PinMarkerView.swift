@@ -6,20 +6,46 @@ struct PinMarkerView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Text(categoryIcon)
-                .font(.system(size: isSelected ? 28 : 20))
-                .padding(6)
-                .background(
+            // Photo thumbnail with category badge
+            ZStack(alignment: .bottomTrailing) {
+                AsyncImage(url: URL(string: APIClient.shared.baseURL + pin.photoUrl)) { image in
+                    image
+                        .resizable()
+                        .scaledToFill()
+                } placeholder: {
+                    Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.3)
+                        .overlay(
+                            Text(categoryIcon)
+                                .font(.system(size: isSelected ? 16 : 12))
+                        )
+                }
+                .frame(width: isSelected ? 44 : 32, height: isSelected ? 44 : 32)
+                .clipShape(Circle())
+                .overlay(
                     Circle()
-                        .fill(isSelected ? Color(red: 0.76, green: 0.6, blue: 0.42) : Color.white)
-                        .shadow(color: .black.opacity(0.2), radius: 2, y: 1)
+                        .stroke(
+                            isSelected ? Color(red: 0.76, green: 0.6, blue: 0.42) : Color.white,
+                            lineWidth: isSelected ? 3 : 2
+                        )
                 )
+                .shadow(color: .black.opacity(0.2), radius: 3, y: 1)
 
+                // Category badge
+                Text(categoryIcon)
+                    .font(.system(size: 10))
+                    .padding(2)
+                    .background(Color.white)
+                    .clipShape(Circle())
+                    .shadow(color: .black.opacity(0.1), radius: 1)
+                    .offset(x: 2, y: 2)
+            }
+
+            // Pin triangle
             Image(systemName: "triangle.fill")
-                .font(.system(size: 8))
+                .font(.system(size: 6))
                 .foregroundColor(isSelected ? Color(red: 0.76, green: 0.6, blue: 0.42) : .white)
                 .rotationEffect(.degrees(180))
-                .offset(y: -3)
+                .offset(y: -2)
         }
         .scaleEffect(isSelected ? 1.2 : 1.0)
         .animation(.spring(response: 0.3), value: isSelected)

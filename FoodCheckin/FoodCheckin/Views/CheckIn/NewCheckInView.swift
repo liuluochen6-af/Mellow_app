@@ -182,19 +182,30 @@ struct NewCheckInView: View {
                 FlowLayout(spacing: 8) {
                     ForEach(data.tags, id: \.self) { tag in
                         HStack(spacing: 4) {
-                            Text(tag).font(.caption)
+                            Text(tag)
+                                .font(.caption)
+                                .onTapGesture {
+                                    tagInput = tag
+                                    data.tags.removeAll { $0 == tag }
+                                }
                             Button {
-                                data.tags.removeAll { $0 == tag }
+                                withAnimation(.easeOut(duration: 0.2)) {
+                                    data.tags.removeAll { $0 == tag }
+                                }
                             } label: {
-                                Image(systemName: "xmark.circle.fill").font(.caption2)
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.caption2)
+                                    .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
                             }
                         }
                         .padding(.horizontal, 10)
                         .padding(.vertical, 6)
                         .background(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.2))
                         .cornerRadius(16)
+                        .transition(.scale.combined(with: .opacity))
                     }
                 }
+                .animation(.easeOut(duration: 0.2), value: data.tags)
             }
         }
     }

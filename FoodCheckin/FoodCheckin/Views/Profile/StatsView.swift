@@ -6,6 +6,7 @@ struct StatsView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
+                yearMonthPicker
                 overviewCard
                 categoryCard
                 spendingCard
@@ -17,6 +18,78 @@ struct StatsView: View {
         .navigationTitle("统计")
         .navigationBarTitleDisplayMode(.inline)
         .task { await viewModel.loadAll() }
+        .onChange(of: viewModel.selectedYear) { _, _ in
+            Task { await viewModel.loadAll() }
+        }
+        .onChange(of: viewModel.selectedMonth) { _, _ in
+            Task { await viewModel.loadAll() }
+        }
+    }
+
+    private var yearMonthPicker: some View {
+        HStack(spacing: 12) {
+            Menu {
+                ForEach((2020...currentYear).reversed(), id: \.self) { year in
+                    Button("\(String(year))年") {
+                        viewModel.selectedYear = year
+                    }
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    Text("\(String(viewModel.selectedYear))年")
+                        .font(.headline)
+                        .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                    Image(systemName: "chevron.down")
+                        .font(.caption)
+                        .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(Color.white)
+                .cornerRadius(20)
+            }
+
+            Menu {
+                ForEach(1...12, id: \.self) { month in
+                    Button("\(month)月") {
+                        viewModel.selectedMonth = month
+                    }
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    Text("\(viewModel.selectedMonth)月")
+                        .font(.headline)
+                        .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                    Image(systemName: "chevron.down")
+                        .font(.caption)
+                        .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(Color.white)
+                .cornerRadius(20)
+            }
+
+            Spacer()
+
+            Button {
+                let now = Calendar.current.dateComponents([.year, .month], from: Date())
+                viewModel.selectedYear = now.year ?? 2026
+                viewModel.selectedMonth = now.month ?? 1
+            } label: {
+                Text("本月")
+                    .font(.subheadline)
+                    .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.15))
+                    .cornerRadius(14)
+            }
+        }
+    }
+
+    private var currentYear: Int {
+        Calendar.current.component(.year, from: Date())
     }
 
     private var overviewCard: some View {
@@ -45,25 +118,31 @@ struct StatsView: View {
                 .font(.headline)
                 .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
 
-            ForEach(viewModel.categories, id: \.category) { item in
-                HStack {
-                    Text(categoryIcon(item.category))
-                    Text(categoryName(item.category))
-                        .font(.subheadline)
-                        .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
-                    Spacer()
-                    Text("\(item.count)")
-                        .font(.subheadline.bold())
-                        .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+            if viewModel.categories.isEmpty {
+                Text("本月暂无打卡")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            } else {
+                ForEach(viewModel.categories, id: \.category) { item in
+                    HStack {
+                        Text(categoryIcon(item.category))
+                        Text(categoryName(item.category))
+                            .font(.subheadline)
+                            .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                        Spacer()
+                        Text("\(item.count)")
+                            .font(.subheadline.bold())
+                            .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
 
-                    let total = viewModel.categories.reduce(0) { $0 + $1.count }
-                    let pct = total > 0 ? Double(item.count) / Double(total) : 0
-                    GeometryReader { geo in
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.3))
-                            .frame(width: geo.size.width * pct)
+                        let total = viewModel.categories.reduce(0) { $0 + $1.count }
+                        let pct = total > 0 ? Double(item.count) / Double(total) : 0
+                        GeometryReader { geo in
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.3))
+                                .frame(width: geo.size.width * pct)
+                        }
+                        .frame(width: 60, height: 8)
                     }
-                    .frame(width: 60, height: 8)
                 }
             }
         }
@@ -126,7 +205,7 @@ struct StatsView: View {
                 .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
 
             if viewModel.topPlaces.isEmpty {
-                Text("还没有打卡记录")
+                Text("本月暂无打卡记录")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             } else {

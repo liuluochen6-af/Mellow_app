@@ -646,13 +646,120 @@ body {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
 }
-.map-pin {
+.map-pin-photo {
   position: absolute;
-  font-size: 28px;
   cursor: pointer;
   transition: transform 0.2s;
 }
-.map-pin:hover { transform: scale(1.3); }
+.map-pin-photo:hover { transform: scale(1.2); }
+.pin-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  border: 2.5px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+.pin-cat {
+  position: absolute;
+  bottom: -2px;
+  right: -4px;
+  font-size: 10px;
+  background: #fff;
+  border-radius: 50%;
+  padding: 2px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+/* Map menu overlay */
+.map-menu-overlay {
+  display: none;
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 10;
+  align-items: flex-end;
+  justify-content: center;
+}
+.map-menu-overlay.active { display: flex; }
+.map-menu-sheet {
+  width: 100%;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  padding: 16px;
+  max-height: 60%;
+  overflow-y: auto;
+}
+.map-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 0.5px solid #eee;
+  margin-bottom: 8px;
+}
+.map-menu-header span { font-size: 15px; font-weight: 600; color: var(--title); }
+.map-menu-header button { background: none; border: none; color: #007AFF; font-size: 15px; cursor: pointer; }
+.map-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 8px;
+  border-bottom: 0.5px solid #f5f5f5;
+  font-size: 15px;
+  color: var(--title);
+  cursor: pointer;
+}
+.map-menu-item span { margin-left: auto; font-size: 12px; color: var(--secondary); }
+.map-menu-item.active { color: var(--primary); font-weight: 600; }
+/* Pin zoom card */
+.pin-zoom-card {
+  display: none;
+  position: absolute;
+  bottom: 100px;
+  left: 16px;
+  right: 16px;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 14px 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  z-index: 5;
+}
+.pin-zoom-card.active { display: block; }
+.pzc-close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-size: 18px;
+  color: var(--secondary);
+  cursor: pointer;
+}
+.pzc-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--title);
+}
+.pzc-address {
+  font-size: 13px;
+  color: var(--secondary);
+  margin-top: 4px;
+}
+.pzc-district {
+  font-size: 12px;
+  color: var(--primary);
+  margin-top: 6px;
+  font-weight: 500;
+}
+.map-pin-photo.zoomed .pin-img {
+  width: 44px;
+  height: 44px;
+  border-color: var(--primary);
+  border-width: 3px;
+  font-size: 22px;
+}
 
 /* ===== CHECKIN PAGE ===== */
 #checkin {
@@ -780,7 +887,16 @@ body {
   background: rgba(194,154,107,0.2);
   color: var(--primary);
   font-size: 12px;
+  cursor: pointer;
+  transition: opacity 0.2s;
 }
+.tag:active { opacity: 0.7; }
+.tag-x {
+  margin-left: 2px;
+  font-weight: 600;
+  opacity: 0.6;
+}
+.tag-x:hover { opacity: 1; }
 .note-input {
   width: 100%;
   padding: 14px 16px;
@@ -835,10 +951,14 @@ body {
   width: 51px;
   height: 31px;
   border-radius: 16px;
-  background: var(--primary);
+  background: #e0e0e0;
   position: relative;
   cursor: pointer;
   border: none;
+  transition: background 0.2s;
+}
+.toggle.on {
+  background: var(--primary);
 }
 .toggle::after {
   content: '';
@@ -848,8 +968,12 @@ body {
   background: #fff;
   position: absolute;
   top: 2px;
-  right: 2px;
+  left: 2px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transition: left 0.2s;
+}
+.toggle.on::after {
+  left: 22px;
 }
 
 /* ===== STATS PAGE ===== */
@@ -907,6 +1031,57 @@ body {
   background: rgba(194,154,107,0.5);
   border-radius: 4px;
 }
+.stats-ym-picker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 4px;
+}
+.stats-ym-picker select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23C29A6B'/%3E%3C/svg%3E") no-repeat right 10px center;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 28px 8px 14px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--title);
+  cursor: pointer;
+}
+.stats-today-btn {
+  margin-left: auto;
+  background: rgba(194,154,107,0.15);
+  border: none;
+  border-radius: 14px;
+  padding: 6px 12px;
+  font-size: 13px;
+  color: var(--primary);
+  font-weight: 500;
+  cursor: pointer;
+}
+.top-place-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+.top-place-row .rank {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ccc;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.top-place-row .rank.gold { background: var(--primary); }
+.top-place-row .tp-name { flex: 1; font-size: 14px; color: var(--title); }
+.top-place-row .tp-count { font-size: 12px; color: var(--secondary); }
+.top-place-row .tp-rating { font-size: 12px; margin-left: 4px; }
 
 /* ===== PROFILE PAGE ===== */
 #profile .content {
@@ -1231,17 +1406,35 @@ body {
     <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
     <div class="map-bg">
       <div class="fake-map">🗺️</div>
+      <!-- Filled visited area -->
+      <div style="position:absolute;top:30%;left:20%;width:55%;height:45%;background:rgba(194,154,107,0.15);border:1.5px solid rgba(194,154,107,0.4);border-radius:20px;"></div>
       <div class="map-top-bar">
-        <button class="circle-btn">☰</button>
-        <button class="region-btn">上海 ↕</button>
-        <button class="circle-btn">✕</button>
+        <button class="circle-btn" onclick="openMapMenu()">☰</button>
+        <span class="region-btn" id="map-region-label">上海</span>
+        <button class="circle-btn" onclick="resetMapToWorld()">↩</button>
       </div>
-      <div class="map-pins">
-        <span class="map-pin" style="top:35%;left:30%">🍽️</span>
-        <span class="map-pin" style="top:45%;left:55%">☕</span>
-        <span class="map-pin" style="top:60%;left:40%">🍽️</span>
-        <span class="map-pin" style="top:50%;left:70%">🎮</span>
-        <span class="map-pin" style="top:70%;left:60%">🛍️</span>
+      <div class="map-pins" id="map-pins-container">
+        <div class="map-pin-photo" style="top:33%;left:28%" onclick="zoomToPin(this,'一兰拉面','南京东路88号','静安区')"><div class="pin-img" style="background:linear-gradient(135deg,#f8e8d4,#e6c9a8)">🍜</div><span class="pin-cat">🍽️</span></div>
+        <div class="map-pin-photo" style="top:43%;left:52%" onclick="zoomToPin(this,'% Arabica','武康路226号','徐汇区')"><div class="pin-img" style="background:linear-gradient(135deg,#f0e8d4,#e6d4a8)">☕</div><span class="pin-cat">☕</span></div>
+        <div class="map-pin-photo" style="top:58%;left:38%" onclick="zoomToPin(this,'鮨·匠心','淮海中路999号','黄浦区')"><div class="pin-img" style="background:linear-gradient(135deg,#f8d4d4,#e6a8a8)">🍣</div><span class="pin-cat">🍽️</span></div>
+        <div class="map-pin-photo" style="top:48%;left:68%" onclick="zoomToPin(this,'Round1','南京西路1168号','静安区')"><div class="pin-img" style="background:linear-gradient(135deg,#d4e0f8,#a8c4e6)">🎮</div><span class="pin-cat">🎮</span></div>
+        <div class="map-pin-photo" style="top:68%;left:58%" onclick="zoomToPin(this,'Perry\\'s','永嘉路52号','徐汇区')"><div class="pin-img" style="background:linear-gradient(135deg,#f8f0d4,#e6dca8)">🛍️</div><span class="pin-cat">🛍️</span></div>
+      </div>
+      <!-- Pin zoom detail -->
+      <div class="pin-zoom-card" id="pin-zoom-card">
+        <div class="pzc-close" onclick="closePinZoom()">×</div>
+        <div class="pzc-name" id="pzc-name">店铺名</div>
+        <div class="pzc-address" id="pzc-address">地址</div>
+        <div class="pzc-district" id="pzc-district">区域</div>
+      </div>
+      <!-- Region menu overlay -->
+      <div class="map-menu-overlay" id="map-menu-overlay">
+        <div class="map-menu-sheet">
+          <div class="map-menu-header"><span>选择区域跳转</span><button onclick="closeMapMenu()">完成</button></div>
+          <div class="map-menu-item active" onclick="selectMapRegion('全球')">🌏 全球 <span>6 打卡</span></div>
+          <div class="map-menu-item" onclick="selectMapRegion('上海')">📍 上海 <span>4 打卡</span></div>
+          <div class="map-menu-item" onclick="selectMapRegion('东京')">📍 东京 <span>2 打卡</span></div>
+        </div>
       </div>
     </div>
     <div class="tab-bar">
@@ -1299,13 +1492,13 @@ body {
       <div class="form-section">
         <label>标签</label>
         <div class="tag-input-row">
-          <input placeholder="添加标签">
-          <button>添加</button>
+          <input placeholder="添加标签" id="tag-input" onkeydown="if(event.key==='Enter')addTagFromInput()">
+          <button onclick="addTagFromInput()">添加</button>
         </div>
-        <div class="tags-list">
-          <span class="tag">日料 ×</span>
-          <span class="tag">约会 ×</span>
-          <span class="tag">性价比 ×</span>
+        <div class="tags-list" id="tags-list">
+          <span class="tag" onclick="clickTag(this)"><span class="tag-text">日料</span><span class="tag-x" onclick="removeTag(event,this)"> ×</span></span>
+          <span class="tag" onclick="clickTag(this)"><span class="tag-text">约会</span><span class="tag-x" onclick="removeTag(event,this)"> ×</span></span>
+          <span class="tag" onclick="clickTag(this)"><span class="tag-text">性价比</span><span class="tag-x" onclick="removeTag(event,this)"> ×</span></span>
         </div>
       </div>
       <div class="form-section">
@@ -1325,7 +1518,7 @@ body {
       <div class="form-section">
         <div class="toggle-row">
           <span>公开（好友可见）</span>
-          <button class="toggle"></button>
+          <button class="toggle on" onclick="toggleSwitch(this)"></button>
         </div>
       </div>
     </div>
@@ -1336,9 +1529,23 @@ body {
     <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
     <div class="page-title">统计</div>
     <div class="content">
+      <div class="stats-ym-picker">
+        <select id="stats-year" onchange="updateStatsData()">
+          <option value="2024">2024年</option>
+          <option value="2025">2025年</option>
+          <option value="2026" selected>2026年</option>
+        </select>
+        <select id="stats-month" onchange="updateStatsData()">
+          <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option>
+          <option value="4">4月</option><option value="5">5月</option><option value="6">6月</option>
+          <option value="7" selected>7月</option><option value="8">8月</option><option value="9">9月</option>
+          <option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
+        </select>
+        <button class="stats-today-btn" onclick="statsGoToday()">本月</button>
+      </div>
       <div class="stats-card">
         <h3>探索足迹</h3>
-        <div class="stats-grid">
+        <div class="stats-grid" id="stats-overview">
           <div><div class="num">128</div><div class="lbl">总打卡</div></div>
           <div><div class="num">67</div><div class="lbl">家店铺</div></div>
           <div><div class="num">3</div><div class="lbl">个国家</div></div>
@@ -1349,17 +1556,27 @@ body {
       </div>
       <div class="stats-card">
         <h3>类别分布</h3>
-        <div class="cat-row"><span>🍽️</span><span class="name">餐饮</span><span class="count">52</span><div class="cat-bar"><div class="cat-bar-fill" style="width:65%"></div></div></div>
-        <div class="cat-row"><span>☕</span><span class="name">饮品</span><span class="count">31</span><div class="cat-bar"><div class="cat-bar-fill" style="width:40%"></div></div></div>
-        <div class="cat-row"><span>🎮</span><span class="name">娱乐</span><span class="count">20</span><div class="cat-bar"><div class="cat-bar-fill" style="width:25%"></div></div></div>
-        <div class="cat-row"><span>🛍️</span><span class="name">购物</span><span class="count">15</span><div class="cat-bar"><div class="cat-bar-fill" style="width:19%"></div></div></div>
-        <div class="cat-row"><span>🏖️</span><span class="name">景点</span><span class="count">10</span><div class="cat-bar"><div class="cat-bar-fill" style="width:13%"></div></div></div>
+        <div id="stats-categories">
+          <div class="cat-row"><span>🍽️</span><span class="name">餐饮</span><span class="count">52</span><div class="cat-bar"><div class="cat-bar-fill" style="width:65%"></div></div></div>
+          <div class="cat-row"><span>☕</span><span class="name">饮品</span><span class="count">31</span><div class="cat-bar"><div class="cat-bar-fill" style="width:40%"></div></div></div>
+          <div class="cat-row"><span>🎮</span><span class="name">娱乐</span><span class="count">20</span><div class="cat-bar"><div class="cat-bar-fill" style="width:25%"></div></div></div>
+          <div class="cat-row"><span>🛍️</span><span class="name">购物</span><span class="count">15</span><div class="cat-bar"><div class="cat-bar-fill" style="width:19%"></div></div></div>
+          <div class="cat-row"><span>🏖️</span><span class="name">景点</span><span class="count">10</span><div class="cat-bar"><div class="cat-bar-fill" style="width:13%"></div></div></div>
+        </div>
       </div>
       <div class="stats-card">
         <h3>消费统计</h3>
-        <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+        <div id="stats-spending" style="display:flex;justify-content:space-between;margin-bottom:12px">
           <div><div style="font-size:12px;color:var(--secondary)">总消费</div><div style="font-size:22px;font-weight:700;color:var(--primary)">¥12,680</div></div>
           <div style="text-align:right"><div style="font-size:12px;color:var(--secondary)">记录笔数</div><div style="font-size:22px;font-weight:700;color:var(--title)">89</div></div>
+        </div>
+      </div>
+      <div class="stats-card">
+        <h3>最佳推荐</h3>
+        <div id="stats-top-places">
+          <div class="top-place-row"><span class="rank gold">1</span><span>🍽️</span><span class="tp-name">一兰拉面</span><span class="tp-count">去过5次</span><span class="tp-rating">夯🔥</span></div>
+          <div class="top-place-row"><span class="rank gold">2</span><span>☕</span><span class="tp-name">% Arabica</span><span class="tp-count">去过4次</span><span class="tp-rating">夯🔥</span></div>
+          <div class="top-place-row"><span class="rank gold">3</span><span>🎮</span><span class="tp-name">Round1</span><span class="tp-count">去过3次</span><span class="tp-rating">不错👍</span></div>
         </div>
       </div>
     </div>
@@ -1695,6 +1912,42 @@ function closeMonthStats() {
   document.getElementById('month-stats-panel').classList.remove('active');
 }
 
+// ===== Map Menu =====
+function openMapMenu() {
+  document.getElementById('map-menu-overlay').classList.add('active');
+}
+function closeMapMenu() {
+  document.getElementById('map-menu-overlay').classList.remove('active');
+}
+function selectMapRegion(name) {
+  document.getElementById('map-region-label').textContent = name;
+  closeMapMenu();
+  closePinZoom();
+}
+function resetMapToWorld() {
+  document.getElementById('map-region-label').textContent = '全球';
+  closePinZoom();
+}
+
+function zoomToPin(el, name, address, district) {
+  // Remove previous zoom state
+  document.querySelectorAll('.map-pin-photo.zoomed').forEach(p => p.classList.remove('zoomed'));
+  // Highlight this pin
+  el.classList.add('zoomed');
+  // Show detail card
+  document.getElementById('pzc-name').textContent = name;
+  document.getElementById('pzc-address').textContent = '📍 ' + address;
+  document.getElementById('pzc-district').textContent = district;
+  document.getElementById('pin-zoom-card').classList.add('active');
+  // Keep region label as city
+  document.getElementById('map-region-label').textContent = '上海';
+}
+
+function closePinZoom() {
+  document.getElementById('pin-zoom-card').classList.remove('active');
+  document.querySelectorAll('.map-pin-photo.zoomed').forEach(p => p.classList.remove('zoomed'));
+}
+
 // Init calendar photos on load
 updateMonthPhotos();
 
@@ -1717,6 +1970,85 @@ document.querySelectorAll('.segment button').forEach(btn => {
     btn.classList.add('active');
   });
 });
+
+// Toggle switch
+function toggleSwitch(el) {
+  el.classList.toggle('on');
+}
+
+// Tag interaction
+function removeTag(ev, el) {
+  ev.stopPropagation();
+  el.parentElement.style.transform = 'scale(0)';
+  el.parentElement.style.opacity = '0';
+  setTimeout(() => el.parentElement.remove(), 200);
+}
+
+function clickTag(el) {
+  const text = el.querySelector('.tag-text').textContent.trim();
+  const input = document.getElementById('tag-input');
+  input.value = text;
+  input.focus();
+}
+
+function addTagFromInput() {
+  const input = document.getElementById('tag-input');
+  const text = input.value.trim();
+  if (!text) return;
+  const list = document.getElementById('tags-list');
+  const tag = document.createElement('span');
+  tag.className = 'tag';
+  tag.onclick = function() { clickTag(this); };
+  tag.innerHTML = `<span class="tag-text">${text}</span><span class="tag-x" onclick="removeTag(event,this)"> ×</span>`;
+  list.appendChild(tag);
+  input.value = '';
+}
+
+// ===== STATS YEAR/MONTH LOGIC =====
+const statsMonthlyData = {
+  '2026-7': {overview:[128,67,3,5,8,15], cats:[{e:'🍽️',n:'餐饮',c:52},{e:'☕',n:'饮品',c:31},{e:'🎮',n:'娱乐',c:20},{e:'🛍️',n:'购物',c:15},{e:'🏖️',n:'景点',c:10}], spend:12680, spendCount:89, top:[{e:'🍽️',n:'一兰拉面',v:5,r:'夯🔥'},{e:'☕',n:'% Arabica',v:4,r:'夯🔥'},{e:'🎮',n:'Round1',v:3,r:'不错👍'}]},
+  '2026-6': {overview:[95,52,2,4,6,11], cats:[{e:'🍽️',n:'餐饮',c:40},{e:'☕',n:'饮品',c:25},{e:'🎮',n:'娱乐',c:15},{e:'🛍️',n:'购物',c:10},{e:'🏖️',n:'景点',c:5}], spend:9450, spendCount:68, top:[{e:'☕',n:'Manner Coffee',v:6,r:'夯🔥'},{e:'🍽️',n:'海底捞',v:4,r:'不错👍'},{e:'🛍️',n:'优衣库',v:3,r:'一般😐'}]},
+  '2026-5': {overview:[72,40,2,3,5,8], cats:[{e:'🍽️',n:'餐饮',c:30},{e:'☕',n:'饮品',c:18},{e:'🎮',n:'娱乐',c:12},{e:'🛍️',n:'购物',c:8},{e:'🏖️',n:'景点',c:4}], spend:7200, spendCount:52, top:[{e:'🍽️',n:'外婆家',v:5,r:'不错👍'},{e:'☕',n:'星巴克',v:4,r:'一般😐'},{e:'🏖️',n:'西湖',v:2,r:'夯🔥'}]},
+  '2026-4': {overview:[58,35,2,3,4,7], cats:[{e:'🍽️',n:'餐饮',c:25},{e:'☕',n:'饮品',c:15},{e:'🎮',n:'娱乐',c:10},{e:'🛍️',n:'购物',c:5},{e:'🏖️',n:'景点',c:3}], spend:5800, spendCount:40, top:[{e:'🍽️',n:'太二酸菜鱼',v:3,r:'不错👍'},{e:'☕',n:'瑞幸',v:8,r:'一般😐'}]},
+};
+
+function updateStatsData() {
+  const year = document.getElementById('stats-year').value;
+  const month = document.getElementById('stats-month').value;
+  const key = `${year}-${month}`;
+  const data = statsMonthlyData[key];
+
+  if (!data) {
+    document.getElementById('stats-overview').innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--secondary);font-size:14px;padding:20px 0">本月暂无打卡数据</div>';
+    document.getElementById('stats-categories').innerHTML = '<div style="color:var(--secondary);font-size:14px;padding:8px 0">本月暂无打卡</div>';
+    document.getElementById('stats-spending').innerHTML = '<div style="display:flex;justify-content:space-between"><div><div style="font-size:12px;color:var(--secondary)">总消费</div><div style="font-size:22px;font-weight:700;color:var(--primary)">¥0</div></div><div style="text-align:right"><div style="font-size:12px;color:var(--secondary)">记录笔数</div><div style="font-size:22px;font-weight:700;color:var(--title)">0</div></div></div>';
+    document.getElementById('stats-top-places').innerHTML = '<div style="color:var(--secondary);font-size:14px;padding:8px 0">本月暂无推荐</div>';
+    return;
+  }
+
+  const labels = ['总打卡','家店铺','个国家','个省份','个城市','个区县'];
+  document.getElementById('stats-overview').innerHTML = data.overview.map((v,i) =>
+    `<div><div class="num">${v}</div><div class="lbl">${labels[i]}</div></div>`
+  ).join('');
+
+  const maxCat = Math.max(...data.cats.map(c => c.c));
+  document.getElementById('stats-categories').innerHTML = data.cats.map(c =>
+    `<div class="cat-row"><span>${c.e}</span><span class="name">${c.n}</span><span class="count">${c.c}</span><div class="cat-bar"><div class="cat-bar-fill" style="width:${Math.round(c.c/maxCat*100)}%"></div></div></div>`
+  ).join('');
+
+  document.getElementById('stats-spending').innerHTML = `<div style="display:flex;justify-content:space-between"><div><div style="font-size:12px;color:var(--secondary)">总消费</div><div style="font-size:22px;font-weight:700;color:var(--primary)">¥${data.spend.toLocaleString()}</div></div><div style="text-align:right"><div style="font-size:12px;color:var(--secondary)">记录笔数</div><div style="font-size:22px;font-weight:700;color:var(--title)">${data.spendCount}</div></div></div>`;
+
+  document.getElementById('stats-top-places').innerHTML = data.top.map((p,i) =>
+    `<div class="top-place-row"><span class="rank ${i<3?'gold':''}">${i+1}</span><span>${p.e}</span><span class="tp-name">${p.n}</span><span class="tp-count">去过${p.v}次</span><span class="tp-rating">${p.r}</span></div>`
+  ).join('');
+}
+
+function statsGoToday() {
+  const now = new Date();
+  document.getElementById('stats-year').value = now.getFullYear();
+  document.getElementById('stats-month').value = now.getMonth() + 1;
+  updateStatsData();
+}
 </script>
 
 </body>

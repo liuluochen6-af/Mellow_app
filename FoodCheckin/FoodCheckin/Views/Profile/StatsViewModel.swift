@@ -45,6 +45,18 @@ class StatsViewModel: ObservableObject {
     @Published var categories: [CategoryCount] = []
     @Published var spending = SpendingData()
     @Published var topPlaces: [TopPlace] = []
+    @Published var selectedYear: Int
+    @Published var selectedMonth: Int
+
+    init() {
+        let now = Calendar.current.dateComponents([.year, .month], from: Date())
+        selectedYear = now.year ?? 2026
+        selectedMonth = now.month ?? 1
+    }
+
+    var queryParams: String {
+        "?year=\(selectedYear)&month=\(selectedMonth)"
+    }
 
     func loadAll() async {
         async let o: () = loadOverview()
@@ -56,7 +68,7 @@ class StatsViewModel: ObservableObject {
 
     private func loadOverview() async {
         do {
-            let data = try await APIClient.shared.get("/api/stats/overview")
+            let data = try await APIClient.shared.get("/api/stats/overview\(queryParams)")
             struct Resp: Codable {
                 let totalCheckins: Int
                 let uniquePlaces: Int
@@ -84,7 +96,7 @@ class StatsViewModel: ObservableObject {
 
     private func loadCategories() async {
         do {
-            let data = try await APIClient.shared.get("/api/stats/category-breakdown")
+            let data = try await APIClient.shared.get("/api/stats/category-breakdown\(queryParams)")
             struct Resp: Codable { let categories: [CategoryCount] }
             let resp = try JSONDecoder().decode(Resp.self, from: data)
             categories = resp.categories.sorted { $0.count > $1.count }
@@ -93,7 +105,7 @@ class StatsViewModel: ObservableObject {
 
     private func loadSpending() async {
         do {
-            let data = try await APIClient.shared.get("/api/stats/spending")
+            let data = try await APIClient.shared.get("/api/stats/spending\(queryParams)")
             struct Resp: Codable {
                 let total: Double
                 let count: Int
@@ -110,7 +122,7 @@ class StatsViewModel: ObservableObject {
 
     private func loadTopPlaces() async {
         do {
-            let data = try await APIClient.shared.get("/api/stats/top-places")
+            let data = try await APIClient.shared.get("/api/stats/top-places\(queryParams)")
             struct Resp: Codable { let places: [TopPlace] }
             let resp = try JSONDecoder().decode(Resp.self, from: data)
             topPlaces = resp.places

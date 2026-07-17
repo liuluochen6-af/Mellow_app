@@ -14,43 +14,47 @@ router = APIRouter(prefix="/api/stats", tags=["stats"])
 
 @router.get("/overview")
 async def get_overview(
+    year: int | None = None,
+    month: int | None = None,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    base = select(CheckIn).where(CheckIn.user_id == current_user.id)
+    filters = [CheckIn.user_id == current_user.id]
+    if year:
+        filters.append(extract("year", CheckIn.created_at) == year)
+    if month:
+        filters.append(extract("month", CheckIn.created_at) == month)
 
     total_count = (await db.execute(
-        select(func.count()).select_from(CheckIn).where(CheckIn.user_id == current_user.id)
+        select(func.count()).select_from(CheckIn).where(*filters)
     )).scalar() or 0
 
     countries = (await db.execute(
         select(func.count(distinct(CheckIn.country))).where(
-            CheckIn.user_id == current_user.id, CheckIn.country != ""
+            *filters, CheckIn.country != ""
         )
     )).scalar() or 0
 
     provinces = (await db.execute(
         select(func.count(distinct(CheckIn.province))).where(
-            CheckIn.user_id == current_user.id, CheckIn.province != ""
+            *filters, CheckIn.province != ""
         )
     )).scalar() or 0
 
     cities = (await db.execute(
         select(func.count(distinct(CheckIn.city))).where(
-            CheckIn.user_id == current_user.id, CheckIn.city != ""
+            *filters, CheckIn.city != ""
         )
     )).scalar() or 0
 
     districts = (await db.execute(
         select(func.count(distinct(CheckIn.district))).where(
-            CheckIn.user_id == current_user.id, CheckIn.district != ""
+            *filters, CheckIn.district != ""
         )
     )).scalar() or 0
 
     unique_places = (await db.execute(
-        select(func.count(distinct(CheckIn.place_name))).where(
-            CheckIn.user_id == current_user.id
-        )
+        select(func.count(distinct(CheckIn.place_name))).where(*filters)
     )).scalar() or 0
 
     return {
@@ -65,12 +69,20 @@ async def get_overview(
 
 @router.get("/category-breakdown")
 async def category_breakdown(
+    year: int | None = None,
+    month: int | None = None,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    filters = [CheckIn.user_id == current_user.id]
+    if year:
+        filters.append(extract("year", CheckIn.created_at) == year)
+    if month:
+        filters.append(extract("month", CheckIn.created_at) == month)
+
     result = await db.execute(
         select(CheckIn.category, func.count().label("count"))
-        .where(CheckIn.user_id == current_user.id)
+        .where(*filters)
         .group_by(CheckIn.category)
     )
     rows = result.all()
@@ -113,9 +125,17 @@ async def spending_stats(
 
 @router.get("/top-places")
 async def top_places(
+    year: int | None = None,
+    month: int | None = None,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    filters = [CheckIn.user_id == current_user.id]
+    if year:
+        filters.append(extract("year", CheckIn.created_at) == year)
+    if month:
+        filters.append(extract("month", CheckIn.created_at) == month)
+
     result = await db.execute(
         select(
             CheckIn.place_name,
@@ -123,7 +143,7 @@ async def top_places(
             func.count().label("visit_count"),
             func.max(CheckIn.rating).label("best_rating"),
         )
-        .where(CheckIn.user_id == current_user.id)
+        .where(*filters)
         .group_by(CheckIn.place_name, CheckIn.category)
         .order_by(func.max(CheckIn.rating).desc(), func.count().desc())
         .limit(10)
