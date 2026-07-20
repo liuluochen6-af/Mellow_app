@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DraftsView: View {
     @State private var drafts: [CheckInDraft] = []
+    @State private var showClearConfirm = false
     @EnvironmentObject var authService: AuthService
 
     var body: some View {
@@ -49,6 +50,25 @@ struct DraftsView: View {
         }
         .navigationTitle("草稿箱")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if !drafts.isEmpty {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("清空") {
+                        showClearConfirm = true
+                    }
+                    .foregroundColor(.red)
+                }
+            }
+        }
+        .alert("清空草稿箱", isPresented: $showClearConfirm) {
+            Button("清空", role: .destructive) {
+                DraftStore.deleteAllDrafts()
+                drafts = []
+            }
+            Button("取消", role: .cancel) {}
+        } message: {
+            Text("确定要删除所有草稿吗？此操作不可恢复。")
+        }
         .onAppear { drafts = DraftStore.loadDrafts() }
     }
 }

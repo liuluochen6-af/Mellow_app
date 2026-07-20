@@ -7,6 +7,7 @@ struct EditProfileView: View {
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var avatarImage: UIImage?
     @State private var isSaving = false
+    @State private var showError = false
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -73,14 +74,21 @@ struct EditProfileView: View {
                 }
             }
         }
+        .alert("保存失败", isPresented: $showError) {
+            Button("确定", role: .cancel) {}
+        } message: {
+            Text(authService.errorMessage ?? "未知错误")
+        }
     }
 
     private func saveProfile() async {
         isSaving = true
         defer { isSaving = false }
-        // TODO: Upload avatar + update nickname via API
-        // For now just update local state
-        authService.currentUser?.nickname = nickname
-        dismiss()
+        let success = await authService.updateProfile(nickname: nickname, avatar: avatarImage)
+        if success {
+            dismiss()
+        } else {
+            showError = true
+        }
     }
 }

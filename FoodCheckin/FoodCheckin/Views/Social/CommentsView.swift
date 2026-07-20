@@ -118,8 +118,7 @@ struct CommentRow: View {
     }
 
     private func formatDate(_ iso: String) -> String {
-        let formatter = ISO8601DateFormatter()
-        guard let date = formatter.date(from: iso) else { return "" }
+        guard let date = DateParsing.parse(iso) else { return "" }
         let rel = RelativeDateTimeFormatter()
         rel.locale = Locale(identifier: "zh_CN")
         return rel.localizedString(for: date, relativeTo: Date())

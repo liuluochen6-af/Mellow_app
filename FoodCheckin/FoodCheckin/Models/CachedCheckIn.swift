@@ -44,6 +44,6 @@ class CachedCheckIn {
         self.isPublic = response.isPublic
         self.amount = response.amount
         self.amountType = response.amountType
-        self.createdAt = ISO8601DateFormatter().date(from: response.createdAt) ?? Date()
+        self.createdAt = DateParsing.parse(response.createdAt) ?? Date()
     }
 }

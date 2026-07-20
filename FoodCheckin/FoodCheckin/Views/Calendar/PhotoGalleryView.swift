@@ -92,11 +92,10 @@ struct PhotoGalleryView: View {
 
     private var groupedByDay: [DayGroup] {
         let cal = Calendar.current
-        let isoFormatter = ISO8601DateFormatter()
-
+        
         var dict: [Int: [CheckInResponse]] = [:]
         for checkIn in viewModel.monthCheckIns {
-            guard let date = isoFormatter.date(from: checkIn.createdAt) else { continue }
+            guard let date = DateParsing.parse(checkIn.createdAt) else { continue }
             let day = cal.component(.day, from: date)
             dict[day, default: []].append(checkIn)
         }
@@ -123,22 +122,19 @@ struct GalleryPhotoCell: View {
     let checkIn: CheckInResponse
 
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            AsyncImage(url: URL(string: APIClient.shared.baseURL + checkIn.photoUrl)) { image in
-                image
-                    .resizable()
-                    .scaledToFill()
-            } placeholder: {
-                Color.gray.opacity(0.1)
+        Color.clear
+            .aspectRatio(1, contentMode: .fit)
+            .overlay {
+                AsyncImage(url: URL(string: APIClient.shared.baseURL + checkIn.photoUrl)) { image in
+                    image
+                        .resizable()
+                        .scaledToFill()
+                } placeholder: {
+                    Color.gray.opacity(0.1)
+                }
             }
-            .frame(minWidth: 0, maxWidth: .infinity)
-            .aspectRatio(1, contentMode: .fill)
-            .clipped()
-            .cornerRadius(6)
-
-            // Place name overlay at bottom
-            VStack {
-                Spacer()
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(alignment: .bottom) {
                 Text(checkIn.placeName)
                     .font(.system(size: 10, weight: .medium))
                     .foregroundColor(.white)
@@ -147,10 +143,8 @@ struct GalleryPhotoCell: View {
                     .padding(.vertical, 2)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(LinearGradient(colors: [.clear, .black.opacity(0.5)], startPoint: .top, endPoint: .bottom))
+                    .clipShape(UnevenRoundedRectangle(bottomLeadingRadius: 8, bottomTrailingRadius: 8))
             }
-            .cornerRadius(6)
-        }
-        .aspectRatio(1, contentMode: .fit)
     }
 }
 
@@ -191,8 +185,7 @@ struct PolaroidCard: View {
     }
 
     private var formattedDate: String {
-        let isoFormatter = ISO8601DateFormatter()
-        guard let date = isoFormatter.date(from: checkIn.createdAt) else { return "" }
+        guard let date = DateParsing.parse(checkIn.createdAt) else { return "" }
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "zh_CN")
         formatter.dateFormat = "M月d日 HH:mm"

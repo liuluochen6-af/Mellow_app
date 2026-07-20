@@ -7,6 +7,9 @@ struct NewCheckInView: View {
 
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var image: UIImage?
+    @State private var showPhotoOptions = false
+    @State private var showCamera = false
+    @State private var showPhotoPicker = false
     @State private var data = CheckInData()
     @State private var selectedPlace: SelectedPlace?
     @State private var showLocationSearch = false
@@ -14,6 +17,8 @@ struct NewCheckInView: View {
     @State private var amountText = ""
     @State private var isPublishing = false
     @State private var showShareAlert = false
+    @State private var showError = false
+    @State private var errorText = ""
 
     var body: some View {
         NavigationStack {
@@ -100,6 +105,22 @@ struct NewCheckInView: View {
                     dismiss()
                 }
             }
+            .alert("发布失败", isPresented: $showError) {
+                Button("确定", role: .cancel) {}
+            } message: {
+                Text(errorText)
+            }
+            .confirmationDialog("选择照片", isPresented: $showPhotoOptions) {
+                Button("拍照") { showCamera = true }
+                Button("从相册选择") { showPhotoPicker = true }
+                if image != nil {
+                    Button("删除照片", role: .destructive) { image = nil; selectedPhoto = nil }
+                }
+            }
+            .photosPicker(isPresented: $showPhotoPicker, selection: $selectedPhoto, matching: .images)
+            .fullScreenCover(isPresented: $showCamera) {
+                CameraView(image: $image)
+            }
         }
     }
 
@@ -114,9 +135,9 @@ struct NewCheckInView: View {
                     .frame(maxWidth: .infinity)
                     .clipped()
                     .cornerRadius(12)
-                    .onTapGesture { selectedPhoto = nil; self.image = nil }
+                    .onTapGesture { showPhotoOptions = true }
             } else {
-                PhotosPicker(selection: $selectedPhoto, matching: .images) {
+                Button { showPhotoOptions = true } label: {
                     VStack(spacing: 12) {
                         Image(systemName: "camera.fill")
                             .font(.largeTitle)
@@ -165,6 +186,8 @@ struct NewCheckInView: View {
         }
     }
 
+    private let suggestedTags = ["性价比高", "环境好", "排队久", "份量大", "适合拍照"]
+
     private var tagsSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("标签").font(.headline)
@@ -178,6 +201,29 @@ struct NewCheckInView: View {
                 Button("添加") { addTag() }
                     .disabled(tagInput.isEmpty)
             }
+
+            FlowLayout(spacing: 8) {
+                ForEach(suggestedTags.filter { !data.tags.contains($0) }, id: \.self) { tag in
+                    Button {
+                        withAnimation(.easeOut(duration: 0.2)) {
+                            data.tags.append(tag)
+                        }
+                    } label: {
+                        Text(tag)
+                            .font(.caption)
+                            .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.1))
+                            .cornerRadius(16)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.3), lineWidth: 1)
+                            )
+                    }
+                }
+            }
+
             if !data.tags.isEmpty {
                 FlowLayout(spacing: 8) {
                     ForEach(data.tags, id: \.self) { tag in
@@ -257,7 +303,8 @@ struct NewCheckInView: View {
             if success {
                 showShareAlert = true
             } else {
-                DraftStore.saveDraft(data: data, image: image)
+                errorText = checkInService.errorMessage ?? "未知错误"
+                showError = true
             }
         }
     }

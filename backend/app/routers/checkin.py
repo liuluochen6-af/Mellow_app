@@ -1,4 +1,5 @@
 import os
+import uuid
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
@@ -34,7 +35,7 @@ def _checkin_to_response(checkin: CheckIn) -> CheckInResponse:
         tags=checkin.tags or [],
         note=checkin.note,
         is_public=checkin.is_public,
-        amount=checkin.amount,
+        amount=float(checkin.amount) if checkin.amount is not None else None,
         amount_type=checkin.amount_type,
         created_at=checkin.created_at,
     )
@@ -251,7 +252,11 @@ async def get_checkin(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(CheckIn).where(CheckIn.id == checkin_id))
+    try:
+        cid = uuid.UUID(checkin_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="无效的ID格式")
+    result = await db.execute(select(CheckIn).where(CheckIn.id == cid))
     checkin = result.scalar_one_or_none()
     if not checkin:
         raise HTTPException(status_code=404, detail="打卡记录不存在")
@@ -267,7 +272,11 @@ async def update_checkin(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(CheckIn).where(CheckIn.id == checkin_id))
+    try:
+        cid = uuid.UUID(checkin_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="无效的ID格式")
+    result = await db.execute(select(CheckIn).where(CheckIn.id == cid))
     checkin = result.scalar_one_or_none()
     if not checkin:
         raise HTTPException(status_code=404, detail="打卡记录不存在")
@@ -296,7 +305,11 @@ async def delete_checkin(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(CheckIn).where(CheckIn.id == checkin_id))
+    try:
+        cid = uuid.UUID(checkin_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="无效的ID格式")
+    result = await db.execute(select(CheckIn).where(CheckIn.id == cid))
     checkin = result.scalar_one_or_none()
     if not checkin:
         raise HTTPException(status_code=404, detail="打卡记录不存在")

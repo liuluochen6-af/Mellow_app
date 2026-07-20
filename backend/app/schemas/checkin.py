@@ -48,7 +48,7 @@ class CheckInResponse(BaseModel):
     tags: list[str]
     note: str | None
     is_public: bool
-    amount: Decimal | None
+    amount: float | None
     amount_type: str | None
     created_at: datetime
 

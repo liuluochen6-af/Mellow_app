@@ -23,11 +23,10 @@ struct ContentView: View {
                         Text("地图")
                     }
 
-                Text("")
+                Color.clear
                     .tag(2)
                     .tabItem {
-                        Image(systemName: "")
-                        Text("")
+                        Text(" ")
                     }
 
                 StatsView()

@@ -82,7 +82,7 @@ class CalendarViewModel: ObservableObject {
         var seenDays: Set<Int> = []
         var toProcess: [CheckInResponse] = []
         for checkIn in checkIns {
-            guard let date = ISO8601DateFormatter().date(from: checkIn.createdAt) else { continue }
+            guard let date = DateParsing.parse(checkIn.createdAt) else { continue }
             let day = calendar.component(.day, from: date)
             if !seenDays.contains(day) && stickers[checkIn.id] == nil {
                 seenDays.insert(day)
@@ -132,7 +132,7 @@ class CalendarViewModel: ObservableObject {
 
     func checkInsForDay(_ day: Int) -> [CheckInResponse] {
         monthCheckIns.filter { checkIn in
-            guard let date = ISO8601DateFormatter().date(from: checkIn.createdAt) else { return false }
+            guard let date = DateParsing.parse(checkIn.createdAt) else { return false }
             return calendar.component(.day, from: date) == day
         }
     }

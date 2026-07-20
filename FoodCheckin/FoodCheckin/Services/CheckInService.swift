@@ -2,6 +2,10 @@ import Foundation
 import SwiftUI
 import UIKit
 
+extension Notification.Name {
+    static let checkInDidPublish = Notification.Name("checkInDidPublish")
+}
+
 @MainActor
 class CheckInService: ObservableObject {
     @Published var myCheckIns: [CheckInResponse] = []
@@ -23,6 +27,7 @@ class CheckInService: ObservableObject {
             let responseData = try await APIClient.shared.uploadCheckIn(photoData: photoData, jsonData: jsonData)
             let response = try JSONDecoder().decode(CheckInResponse.self, from: responseData)
             myCheckIns.insert(response, at: 0)
+            NotificationCenter.default.post(name: .checkInDidPublish, object: nil)
             return true
         } catch let error as APIError {
             errorMessage = error.errorDescription

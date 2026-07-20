@@ -2,20 +2,16 @@ import SwiftUI
 
 struct ProfileMainView: View {
     @EnvironmentObject var authService: AuthService
+    @State private var showDeleteConfirm = false
 
     var body: some View {
         NavigationStack {
             List {
                 Section {
                     HStack(spacing: 14) {
-                        Circle()
-                            .fill(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.3))
+                        avatarView
                             .frame(width: 56, height: 56)
-                            .overlay(
-                                Text(String((authService.currentUser?.nickname ?? "用").prefix(1)))
-                                    .font(.title2.bold())
-                                    .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
-                            )
+                            .clipShape(Circle())
 
                         VStack(alignment: .leading, spacing: 4) {
                             Text(authService.currentUser?.nickname ?? "用户")
@@ -57,12 +53,46 @@ struct ProfileMainView: View {
                     .foregroundColor(.orange)
 
                     Button("删除账号") {
-                        Task { await authService.deleteAccount() }
+                        showDeleteConfirm = true
                     }
                     .foregroundColor(.red)
                 }
             }
             .navigationTitle("我的")
+            .task { await authService.loadProfile() }
+            .alert("确认删除", isPresented: $showDeleteConfirm) {
+                Button("删除", role: .destructive) {
+                    Task { await authService.deleteAccount() }
+                }
+                Button("取消", role: .cancel) {}
+            } message: {
+                Text("删除后所有数据将无法恢复，确定要删除账号吗？")
+            }
         }
+    }
+
+    @ViewBuilder
+    private var avatarView: some View {
+        if let url = authService.currentUser?.avatarUrl,
+           !url.isEmpty,
+           let fullURL = URL(string: APIClient.shared.baseURL + url) {
+            AsyncImage(url: fullURL) { image in
+                image.resizable().scaledToFill()
+            } placeholder: {
+                avatarPlaceholder
+            }
+        } else {
+            avatarPlaceholder
+        }
+    }
+
+    private var avatarPlaceholder: some View {
+        Circle()
+            .fill(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.3))
+            .overlay(
+                Text(String((authService.currentUser?.nickname ?? "用").prefix(1)))
+                    .font(.title2.bold())
+                    .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+            )
     }
 }

@@ -25,6 +25,10 @@ class UserResponse(BaseModel):
     created_at: datetime
 
 
+class UpdateProfileRequest(BaseModel):
+    nickname: str | None = None
+
+
 class LoginResponse(BaseModel):
     token: str
     user: UserResponse

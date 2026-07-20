@@ -6,6 +6,7 @@ struct MapView: View {
     @State private var selectedPin: MapPin? = nil
     @State private var cameraPosition: MapCameraPosition = .automatic
     @State private var showRegionMenu = false
+    @State private var showCheckInDetail = false
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -74,8 +75,14 @@ struct MapView: View {
 
                 // Back to world button
                 Button {
+                    selectedPin = nil
                     viewModel.selectedRegion = "全球"
-                    withAnimation { cameraPosition = .automatic }
+                    withAnimation {
+                        cameraPosition = .region(MKCoordinateRegion(
+                            center: CLLocationCoordinate2D(latitude: 35.0, longitude: 105.0),
+                            span: MKCoordinateSpan(latitudeDelta: 60, longitudeDelta: 60)
+                        ))
+                    }
                 } label: {
                     Image(systemName: "arrow.uturn.backward")
                         .font(.body.weight(.medium))
@@ -93,6 +100,7 @@ struct MapView: View {
                 VStack {
                     Spacer()
                     PinDetailCard(pin: pin)
+                        .onTapGesture { showCheckInDetail = true }
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                         .padding(.horizontal)
                         .padding(.bottom, 16)
@@ -108,6 +116,11 @@ struct MapView: View {
                 showRegionMenu = false
             }
             .presentationDetents([.medium])
+        }
+        .sheet(isPresented: $showCheckInDetail) {
+            if let pin = selectedPin {
+                CheckInDetailView(checkInId: pin.id)
+            }
         }
     }
 

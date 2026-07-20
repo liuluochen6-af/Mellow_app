@@ -11,16 +11,17 @@ struct DayCellView: View {
     var body: some View {
         ZStack {
             if let sticker = stickerImage {
-                // Sticker mode: show sticker filling the cell
                 Image(uiImage: sticker)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 36, height: 36)
-            } else {
-                Text("\(day)")
-                    .font(.system(size: 15, weight: isToday ? .bold : .medium))
-                    .foregroundColor(isToday ? .white : Color(red: 0.35, green: 0.25, blue: 0.15))
+                    .frame(width: 30, height: 30)
+                    .clipShape(Circle())
+                    .opacity(0.8)
             }
+
+            Text("\(day)")
+                .font(.system(size: 15, weight: isToday ? .bold : .medium))
+                .foregroundColor(isToday ? .white : Color(red: 0.35, green: 0.25, blue: 0.15))
         }
         .frame(maxWidth: .infinity)
         .frame(height: 44)

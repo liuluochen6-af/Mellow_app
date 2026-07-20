@@ -69,4 +69,13 @@ enum DraftStore {
             }
         }
     }
+
+    static func deleteAllDrafts() {
+        let drafts = loadDrafts()
+        for draft in drafts {
+            let imageURL = imagesDir.appendingPathComponent(draft.imageFileName)
+            try? FileManager.default.removeItem(at: imageURL)
+        }
+        try? FileManager.default.removeItem(at: draftsURL)
+    }
 }

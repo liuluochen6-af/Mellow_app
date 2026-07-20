@@ -19,8 +19,9 @@ struct MonthView: View {
 
             // Day grid
             LazyVGrid(columns: columns, spacing: 6) {
-                ForEach(0..<viewModel.firstWeekday, id: \.self) { _ in
+                ForEach(0..<viewModel.firstWeekday, id: \.self) { i in
                     Color.clear.frame(height: 44)
+                        .id("blank_\(i)")
                 }
 
                 ForEach(1...viewModel.daysInMonth, id: \.self) { day in

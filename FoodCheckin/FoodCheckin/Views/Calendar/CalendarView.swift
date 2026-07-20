@@ -131,6 +131,9 @@ struct CalendarView: View {
         .onChange(of: viewModel.currentYear) { _, _ in
             Task { await viewModel.loadMonth() }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .checkInDidPublish)) { _ in
+            Task { await viewModel.loadMonth() }
+        }
     }
 
     private var todaySubtitle: String {

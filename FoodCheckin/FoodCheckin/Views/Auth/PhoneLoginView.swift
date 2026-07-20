@@ -26,6 +26,7 @@ struct PhoneLoginView: View {
                     HStack {
                         TextField("验证码", text: $code)
                             .keyboardType(.numberPad)
+                            .textContentType(.oneTimeCode)
                             .padding()
                             .background(Color.white)
                             .cornerRadius(12)
@@ -80,6 +81,9 @@ struct PhoneLoginView: View {
             if success {
                 codeSent = true
                 startCountdown()
+                if let devCode = authService.devCode {
+                    code = devCode
+                }
             }
         }
     }

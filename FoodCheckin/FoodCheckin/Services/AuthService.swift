@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 import AuthenticationServices
 
 struct SendCodeBody: Encodable {
@@ -25,11 +26,18 @@ class AuthService: ObservableObject {
         isLoggedIn = KeychainHelper.getToken() != nil
     }
 
+    @Published var devCode: String?
+
     func sendCode(phone: String) async -> Bool {
         errorMessage = nil
+        devCode = nil
         do {
             let body = SendCodeBody(phone: phone)
-            _ = try await APIClient.shared.post("/api/auth/send-code", body: body)
+            let data = try await APIClient.shared.post("/api/auth/send-code", body: body)
+            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let code = json["dev_code"] as? String {
+                devCode = code
+            }
             return true
         } catch let error as APIError {
             errorMessage = error.errorDescription
@@ -76,6 +84,31 @@ class AuthService: ObservableObject {
         KeychainHelper.deleteToken()
         currentUser = nil
         isLoggedIn = false
+    }
+
+    func loadProfile() async {
+        guard KeychainHelper.getToken() != nil else { return }
+        do {
+            let data = try await APIClient.shared.get("/api/auth/me")
+            let user = try JSONDecoder().decode(UserProfile.self, from: data)
+            currentUser = user
+        } catch {}
+    }
+
+    func updateProfile(nickname: String?, avatar: UIImage?) async -> Bool {
+        do {
+            let data = try await APIClient.shared.uploadProfile(nickname: nickname, avatarData: avatar?.jpegData(compressionQuality: 0.7))
+            let decoder = JSONDecoder()
+            let user = try decoder.decode(UserProfile.self, from: data)
+            currentUser = user
+            return true
+        } catch let error as APIError {
+            errorMessage = error.errorDescription
+            return false
+        } catch {
+            errorMessage = "保存失败，请重试"
+            return false
+        }
     }
 
     func deleteAccount() async {

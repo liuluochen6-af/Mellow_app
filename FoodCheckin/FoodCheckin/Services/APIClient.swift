@@ -124,6 +124,44 @@ class APIClient {
         }
     }
 
+    func uploadProfile(nickname: String?, avatarData: Data?) async throws -> Data {
+        guard let url = URL(string: baseURL + "/api/auth/profile") else { throw APIError.invalidURL }
+
+        let boundary = UUID().uuidString
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        if let token = KeychainHelper.getToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+
+        var body = Data()
+        if let nickname {
+            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+            body.append("Content-Disposition: form-data; name=\"nickname\"\r\n\r\n".data(using: .utf8)!)
+            body.append("\(nickname)\r\n".data(using: .utf8)!)
+        }
+        if let avatarData {
+            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+            body.append("Content-Disposition: form-data; name=\"avatar\"; filename=\"avatar.jpg\"\r\n".data(using: .utf8)!)
+            body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+            body.append(avatarData)
+            body.append("\r\n".data(using: .utf8)!)
+        }
+        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        request.httpBody = body
+
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            try validateResponse(response, data: data)
+            return data
+        } catch let error as APIError {
+            throw error
+        } catch {
+            throw APIError.networkError(error)
+        }
+    }
+
     private func validateResponse(_ response: URLResponse, data: Data) throws {
         guard let http = response as? HTTPURLResponse else { return }
         if http.statusCode == 401 {
@@ -131,7 +169,13 @@ class APIClient {
             throw APIError.unauthorized
         }
         if http.statusCode >= 400 {
-            let message = String(data: data, encoding: .utf8) ?? "Unknown error"
+            var message = "请求失败"
+            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let detail = json["detail"] as? String {
+                message = detail
+            } else if let raw = String(data: data, encoding: .utf8), !raw.isEmpty {
+                message = raw
+            }
             throw APIError.serverError(http.statusCode, message)
         }
     }
