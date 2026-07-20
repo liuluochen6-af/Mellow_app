@@ -58,6 +58,7 @@ struct ContentView: View {
             }
             .offset(y: -20)
         }
+        .environmentObject(checkInService)
         .fullScreenCover(isPresented: $showNewCheckIn) {
             NewCheckInView()
                 .environmentObject(checkInService)

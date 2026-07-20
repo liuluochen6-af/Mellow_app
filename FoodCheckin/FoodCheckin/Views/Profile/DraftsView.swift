@@ -3,7 +3,11 @@ import SwiftUI
 struct DraftsView: View {
     @State private var drafts: [CheckInDraft] = []
     @State private var showClearConfirm = false
+    @State private var publishingIds: Set<UUID> = []
+    @State private var errorMessage: String?
+    @State private var showError = false
     @EnvironmentObject var authService: AuthService
+    @EnvironmentObject var checkInService: CheckInService
 
     var body: some View {
         List {
@@ -38,6 +42,24 @@ struct DraftsView: View {
                                 .foregroundColor(.secondary)
                         }
                         Spacer()
+
+                        Button {
+                            Task { await publishDraft(draft) }
+                        } label: {
+                            if publishingIds.contains(draft.id) {
+                                ProgressView()
+                                    .frame(width: 60)
+                            } else {
+                                Text("发布")
+                                    .font(.subheadline.weight(.medium))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
+                                    .background(Color(red: 0.76, green: 0.6, blue: 0.42))
+                                    .cornerRadius(14)
+                            }
+                        }
+                        .disabled(publishingIds.contains(draft.id))
                     }
                 }
                 .onDelete { indexSet in
@@ -69,6 +91,29 @@ struct DraftsView: View {
         } message: {
             Text("确定要删除所有草稿吗？此操作不可恢复。")
         }
+        .alert("发布失败", isPresented: $showError) {
+            Button("确定", role: .cancel) {}
+        } message: {
+            Text(errorMessage ?? "网络错误，请稍后重试")
+        }
         .onAppear { drafts = DraftStore.loadDrafts() }
+    }
+
+    private func publishDraft(_ draft: CheckInDraft) async {
+        guard let image = DraftStore.getDraftImage(fileName: draft.imageFileName) else {
+            errorMessage = "草稿图片丢失"
+            showError = true
+            return
+        }
+        publishingIds.insert(draft.id)
+        let success = await checkInService.publish(data: draft.data, image: image)
+        publishingIds.remove(draft.id)
+        if success {
+            DraftStore.deleteDraft(id: draft.id)
+            drafts = DraftStore.loadDrafts()
+        } else {
+            errorMessage = checkInService.errorMessage
+            showError = true
+        }
     }
 }
