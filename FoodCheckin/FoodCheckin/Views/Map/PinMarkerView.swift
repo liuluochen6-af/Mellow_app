@@ -51,14 +51,5 @@ struct PinMarkerView: View {
         .animation(.spring(response: 0.3), value: isSelected)
     }
 
-    private var categoryIcon: String {
-        switch pin.category {
-        case "food": return "🍽️"
-        case "drink": return "☕"
-        case "entertainment": return "🎮"
-        case "shopping": return "🛍️"
-        case "scenic": return "🏖️"
-        default: return "📌"
-        }
-    }
+    private var categoryIcon: String { pin.category.categoryIcon }
 }

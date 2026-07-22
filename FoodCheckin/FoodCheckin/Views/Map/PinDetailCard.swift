@@ -42,24 +42,6 @@ struct PinDetailCard: View {
         .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
     }
 
-    private var categoryIcon: String {
-        switch pin.category {
-        case "food": return "🍽️"
-        case "drink": return "☕"
-        case "entertainment": return "🎮"
-        case "shopping": return "🛍️"
-        case "scenic": return "🏖️"
-        default: return "📌"
-        }
-    }
-
-    private var ratingLabel: String {
-        switch pin.rating {
-        case 4: return "夯"
-        case 3: return "不错"
-        case 2: return "一般"
-        case 1: return "拉"
-        default: return ""
-        }
-    }
+    private var categoryIcon: String { pin.category.categoryIcon }
+    private var ratingLabel: String { .ratingLabel(pin.rating) }
 }

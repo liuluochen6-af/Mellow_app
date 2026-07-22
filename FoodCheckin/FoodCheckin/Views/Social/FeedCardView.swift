@@ -111,26 +111,8 @@ struct FeedCardView: View {
         }
     }
 
-    private func categoryIcon(_ category: String) -> String {
-        switch category {
-        case "food": return "\u{1F37D}\u{FE0F}"
-        case "drink": return "\u{2615}"
-        case "entertainment": return "\u{1F3AE}"
-        case "shopping": return "\u{1F6CD}\u{FE0F}"
-        case "scenic": return "\u{1F3D6}\u{FE0F}"
-        default: return "\u{1F4CC}"
-        }
-    }
-
-    private func ratingLabel(_ rating: Int) -> String {
-        switch rating {
-        case 4: return "夯\u{1F525}"
-        case 3: return "不错\u{1F44D}"
-        case 2: return "一般\u{1F610}"
-        case 1: return "拉\u{1F4A9}"
-        default: return ""
-        }
-    }
+    private func categoryIcon(_ category: String) -> String { category.categoryIcon }
+    private func ratingLabel(_ rating: Int) -> String { .ratingLabel(rating) }
 
     private func ratingColor(_ rating: Int) -> Color {
         switch rating {

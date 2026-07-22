@@ -252,37 +252,9 @@ struct StatsView: View {
         .cornerRadius(16)
     }
 
-    private func categoryIcon(_ category: String) -> String {
-        switch category {
-        case "food": return "🍽️"
-        case "drink": return "☕"
-        case "entertainment": return "🎮"
-        case "shopping": return "🛍️"
-        case "scenic": return "🏖️"
-        default: return "📌"
-        }
-    }
-
-    private func categoryName(_ category: String) -> String {
-        switch category {
-        case "food": return "餐饮"
-        case "drink": return "饮品"
-        case "entertainment": return "娱乐"
-        case "shopping": return "购物"
-        case "scenic": return "景点"
-        default: return "其他"
-        }
-    }
-
-    private func ratingLabel(_ rating: Int) -> String {
-        switch rating {
-        case 4: return "夯🔥"
-        case 3: return "不错👍"
-        case 2: return "一般😐"
-        case 1: return "拉💩"
-        default: return ""
-        }
-    }
+    private func categoryIcon(_ category: String) -> String { category.categoryIcon }
+    private func categoryName(_ category: String) -> String { category.categoryDisplayName }
+    private func ratingLabel(_ rating: Int) -> String { .ratingLabel(rating) }
 }
 
 struct StatItem: View {

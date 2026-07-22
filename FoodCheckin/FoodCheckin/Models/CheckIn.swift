@@ -31,6 +31,26 @@ enum CheckInCategory: String, CaseIterable, Codable {
     }
 }
 
+extension String {
+    var categoryIcon: String {
+        CheckInCategory(rawValue: self)?.icon ?? "📌"
+    }
+
+    var categoryDisplayName: String {
+        CheckInCategory(rawValue: self)?.displayName ?? "其他"
+    }
+
+    static func ratingLabel(_ rating: Int) -> String {
+        switch rating {
+        case 4: return "夯🔥"
+        case 3: return "不错👍"
+        case 2: return "一般😐"
+        case 1: return "拉💩"
+        default: return ""
+        }
+    }
+}
+
 enum AmountType: String, Codable {
     case perPerson = "per_person"
     case total = "total"
