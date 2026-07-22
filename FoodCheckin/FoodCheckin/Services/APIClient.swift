@@ -22,7 +22,7 @@ class APIClient {
     #if targetEnvironment(simulator)
     let baseURL = "http://localhost:8000"
     #else
-    let baseURL = "https://your-domain.com"
+    let baseURL = "http://8.137.156.254"
     #endif
 
     private init() {}

@@ -55,7 +55,10 @@ class StatsViewModel: ObservableObject {
     }
 
     var queryParams: String {
-        "?year=\(selectedYear)&month=\(selectedMonth)"
+        if selectedMonth == 0 {
+            return "?year=\(selectedYear)"
+        }
+        return "?year=\(selectedYear)&month=\(selectedMonth)"
     }
 
     func loadAll() async {

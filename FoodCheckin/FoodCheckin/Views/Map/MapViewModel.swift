@@ -42,7 +42,7 @@ struct VisitedPolygon: Identifiable {
 enum MapZoomLevel: Equatable {
     case world      // Show country-level polygon fills
     case country    // Show province-level fills (e.g., China provinces)
-    case province   // Show city-level fills if data available
+    case province   // Show city-level fills
 }
 
 // MARK: - ViewModel
@@ -175,26 +175,20 @@ class MapViewModel: ObservableObject {
 
         switch level {
         case .world:
-            // Show country-level fills for visited countries
-            // File: countries.json (GeoJSON FeatureCollection of world countries)
             let allCountries = geoService.loadRegions(from: "countries")
             let visitedSet = Set(regions.countries)
             let visited = geoService.filterVisited(regions: allCountries, visitedNames: visitedSet)
             polygons = buildPolygons(from: visited)
 
         case .country:
-            // Show province-level fills for visited provinces (China)
             let allProvinces = geoService.loadRegions(from: "china-provinces")
             let visitedSet = Set(regions.provinces)
             let visited = geoService.filterVisited(regions: allProvinces, visitedNames: visitedSet)
             polygons = buildPolygons(from: visited)
 
         case .province:
-            // Show city-level fills for visited cities if data available
-            // File: china-cities.json (GeoJSON FeatureCollection of China cities)
             let allCities = geoService.loadRegions(from: "china-cities")
             if allCities.isEmpty {
-                // Fallback to province level if city GeoJSON is not available
                 let allProvinces = geoService.loadRegions(from: "china-provinces")
                 let visitedSet = Set(regions.provinces)
                 let visited = geoService.filterVisited(regions: allProvinces, visitedNames: visitedSet)
@@ -204,6 +198,7 @@ class MapViewModel: ObservableObject {
                 let visited = geoService.filterVisited(regions: allCities, visitedNames: visitedSet)
                 polygons = buildPolygons(from: visited)
             }
+
         }
 
         visitedPolygons = polygons

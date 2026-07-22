@@ -73,13 +73,25 @@ struct StatsView: View {
             Spacer()
 
             Button {
+                viewModel.selectedMonth = 0
+            } label: {
+                Text("全年")
+                    .font(.subheadline)
+                    .foregroundColor(viewModel.selectedMonth == 0 ? .white : Color(red: 0.76, green: 0.6, blue: 0.42))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(viewModel.selectedMonth == 0 ? Color(red: 0.76, green: 0.6, blue: 0.42) : Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.15))
+                    .cornerRadius(14)
+            }
+
+            Button {
                 let now = Calendar.current.dateComponents([.year, .month], from: Date())
                 viewModel.selectedYear = now.year ?? 2026
                 viewModel.selectedMonth = now.month ?? 1
             } label: {
                 Text("本月")
                     .font(.subheadline)
-                    .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                    .foregroundColor(viewModel.selectedMonth != 0 ? Color(red: 0.76, green: 0.6, blue: 0.42) : Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.6))
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
                     .background(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.15))

@@ -6,6 +6,17 @@ extension Notification.Name {
     static let checkInDidPublish = Notification.Name("checkInDidPublish")
 }
 
+extension UIImage {
+    func fixedOrientation() -> UIImage {
+        if imageOrientation == .up { return self }
+        UIGraphicsBeginImageContextWithOptions(size, false, scale)
+        draw(in: CGRect(origin: .zero, size: size))
+        let normalized = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return normalized ?? self
+    }
+}
+
 @MainActor
 class CheckInService: ObservableObject {
     @Published var myCheckIns: [CheckInResponse] = []
@@ -13,7 +24,8 @@ class CheckInService: ObservableObject {
     @Published var errorMessage: String?
 
     func publish(data: CheckInData, image: UIImage) async -> Bool {
-        guard let photoData = image.jpegData(compressionQuality: 0.7) else {
+        let fixedImage = image.fixedOrientation()
+        guard let photoData = fixedImage.jpegData(compressionQuality: 0.7) else {
             errorMessage = "图片处理失败"
             return false
         }

@@ -67,7 +67,7 @@ struct EditProfileView: View {
             nickname = authService.currentUser?.nickname ?? ""
         }
         .onChange(of: selectedPhoto) { _, item in
-            Task {
+            Task { @MainActor in
                 if let data = try? await item?.loadTransferable(type: Data.self),
                    let image = UIImage(data: data) {
                     avatarImage = image

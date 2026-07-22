@@ -2,7 +2,7 @@ import uuid
 import os
 from io import BytesIO
 
-from PIL import Image
+from PIL import Image, ImageOps
 
 UPLOAD_DIR = "uploads"
 MAX_WIDTH = 1080
@@ -11,6 +11,8 @@ JPEG_QUALITY = 70
 
 def compress_and_save_image(file_bytes: bytes, original_filename: str) -> str:
     img = Image.open(BytesIO(file_bytes))
+
+    img = ImageOps.exif_transpose(img)
 
     if img.mode in ("RGBA", "P"):
         img = img.convert("RGB")
