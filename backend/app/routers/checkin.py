@@ -90,6 +90,33 @@ async def create_checkin(
     return _checkin_to_response(checkin)
 
 
+@router.get("/search", response_model=CheckInListResponse)
+async def search_checkins(
+    q: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    search_term = f"%{q}%"
+    query = (
+        select(CheckIn)
+        .where(CheckIn.user_id == current_user.id)
+        .where(
+            (CheckIn.place_name.ilike(search_term))
+            | (CheckIn.address.ilike(search_term))
+            | (CheckIn.tags.ilike(search_term))
+            | (CheckIn.note.ilike(search_term))
+        )
+        .order_by(desc(CheckIn.created_at))
+        .limit(50)
+    )
+    result = await db.execute(query)
+    checkins = result.scalars().all()
+    return CheckInListResponse(
+        items=[_checkin_to_response(c) for c in checkins],
+        next_cursor=None,
+    )
+
+
 @router.get("/mine", response_model=CheckInListResponse)
 async def list_my_checkins(
     cursor: str | None = None,
