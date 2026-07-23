@@ -9,7 +9,7 @@ from app.database import get_db
 from app.dependencies import get_current_user
 from app.models.user import User
 from app.models.checkin import CheckIn
-from app.models.social import Friendship, Comment, Notification
+from app.models.social import Friendship, Comment, Notification, Bookmark
 
 router = APIRouter(prefix="/api/social", tags=["social"])
 
@@ -419,3 +419,84 @@ async def mark_notifications_read(
     )
     await db.commit()
     return {"message": "已全部标记为已读"}
+
+
+# ========== BOOKMARKS ==========
+
+@router.post("/bookmarks/{checkin_id}")
+async def toggle_bookmark(
+    checkin_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    cid = uuid.UUID(checkin_id)
+    existing = await db.execute(
+        select(Bookmark).where(
+            Bookmark.user_id == current_user.id,
+            Bookmark.checkin_id == cid,
+        )
+    )
+    bookmark = existing.scalar_one_or_none()
+
+    if bookmark:
+        await db.delete(bookmark)
+        await db.commit()
+        return {"bookmarked": False}
+    else:
+        new_bookmark = Bookmark(user_id=current_user.id, checkin_id=cid)
+        db.add(new_bookmark)
+        await db.commit()
+        return {"bookmarked": True}
+
+
+@router.get("/bookmarks")
+async def list_bookmarks(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    query = (
+        select(Bookmark)
+        .where(Bookmark.user_id == current_user.id)
+        .order_by(desc(Bookmark.created_at))
+    )
+    result = await db.execute(query)
+    bookmarks = result.scalars().all()
+
+    if not bookmarks:
+        return {"items": []}
+
+    checkin_ids = [b.checkin_id for b in bookmarks]
+    checkins_result = await db.execute(
+        select(CheckIn).where(CheckIn.id.in_(checkin_ids))
+    )
+    checkins_map = {c.id: c for c in checkins_result.scalars().all()}
+
+    user_ids = list(set(c.user_id for c in checkins_map.values()))
+    if user_ids:
+        users_result = await db.execute(select(User).where(User.id.in_(user_ids)))
+        users_map = {u.id: u for u in users_result.scalars().all()}
+    else:
+        users_map = {}
+
+    items = []
+    for b in bookmarks:
+        c = checkins_map.get(b.checkin_id)
+        if not c:
+            continue
+        user = users_map.get(c.user_id)
+        items.append({
+            "id": str(c.id),
+            "user_id": str(c.user_id),
+            "user_nickname": user.nickname if user else "未知用户",
+            "photo_url": c.photo_path,
+            "place_name": c.place_name,
+            "address": c.address,
+            "category": c.category,
+            "rating": c.rating,
+            "latitude": float(c.latitude),
+            "longitude": float(c.longitude),
+            "created_at": c.created_at.isoformat(),
+            "bookmarked_at": b.created_at.isoformat(),
+        })
+
+    return {"items": items}

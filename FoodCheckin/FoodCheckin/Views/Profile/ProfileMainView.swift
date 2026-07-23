@@ -32,6 +32,12 @@ struct ProfileMainView: View {
                     NavigationLink(destination: FeedView()) {
                         Label("好友动态", systemImage: "bubble.left.and.bubble.right")
                     }
+                    NavigationLink(destination: BookmarksView()) {
+                        Label("我的收藏", systemImage: "bookmark")
+                    }
+                    NavigationLink(destination: SearchView()) {
+                        Label("搜索记录", systemImage: "magnifyingglass")
+                    }
                     NavigationLink(destination: FriendsListView()) {
                         Label("好友管理", systemImage: "person.2")
                     }

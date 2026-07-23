@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A4B5C6D7E8F9A0B1C2D3E4F5 /* BookmarksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C6D7E8F9A0B1C2D3E4F5A6 /* BookmarksView.swift */; };
+		C6D7E8F9A0B1C2D3E4F5A6B7 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7E8F9A0B1C2D3E4F5A6B7C8 /* SearchView.swift */; };
 		029D6CDFD3A157FA7A4902BC /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA94450F92185C64756FD098 /* ContentView.swift */; };
 		140300355B54534F6E41F9EF /* FoodCheckinApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 453C54DF50A70E811EBD4217 /* FoodCheckinApp.swift */; };
 		1729FFC2E31225B91427CA57 /* NewCheckInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70D6571F30D2F162C6DF9836 /* NewCheckInView.swift */; };
@@ -122,6 +124,8 @@
 		F7A8B9C0D1E20D54758F9A0B /* china-cities.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "china-cities.json"; sourceTree = "<group>"; };
 		FCFB75EE98C22972FCF10CAB /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		FF66778899001122334455AA /* ShareHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareHelper.swift; sourceTree = "<group>"; };
+		B5C6D7E8F9A0B1C2D3E4F5A6 /* BookmarksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksView.swift; sourceTree = "<group>"; };
+		D7E8F9A0B1C2D3E4F5A6B7C8 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -159,9 +163,18 @@
 				6A6EDD816A1814D7DB9E8E76 /* CheckIn */,
 				D4B647694EC4AF21202CE87A /* Map */,
 				5EC86927C297EE57E75096AA /* Profile */,
+				E8F9A0B1C2D3E4F5A6B7C8D9 /* Search */,
 				6CA176088F18E0B9C69376C4 /* Social */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		E8F9A0B1C2D3E4F5A6B7C8D9 /* Search */ = {
+			isa = PBXGroup;
+			children = (
+				D7E8F9A0B1C2D3E4F5A6B7C8 /* SearchView.swift */,
+			);
+			path = Search;
 			sourceTree = "<group>";
 		};
 		30BB002D96241AB1A6525169 /* Products */ = {
@@ -192,6 +205,7 @@
 			isa = PBXGroup;
 			children = (
 				DEC45332CBEE22D304C3D705 /* AboutView.swift */,
+				B5C6D7E8F9A0B1C2D3E4F5A6 /* BookmarksView.swift */,
 				0257EAFF4E42619C3676B066 /* DraftsView.swift */,
 				BB22CC33DD44EE55FF667788 /* EditProfileView.swift */,
 				6A22ED111E7D891DE3C8213D /* FriendsListView.swift */,
@@ -361,6 +375,8 @@
 			files = (
 				26DEACF2E6A7C49CB9E9877F /* APIClient.swift in Sources */,
 				FDA9E8990E6BF7B1B44DED59 /* AboutView.swift in Sources */,
+				A4B5C6D7E8F9A0B1C2D3E4F5 /* BookmarksView.swift in Sources */,
+				C6D7E8F9A0B1C2D3E4F5A6B7 /* SearchView.swift in Sources */,
 				76DCB1A16E627AF577304050 /* AddFriendView.swift in Sources */,
 				5F6E7CD30A39F7093BECC8CF /* AuthService.swift in Sources */,
 				3CED9B3F3914BFEB8965822A /* CachedCheckIn.swift in Sources */,

@@ -92,14 +92,30 @@ struct FeedCardView: View {
                 }
             }
 
-            Button { showComments = true } label: {
-                HStack(spacing: 4) {
-                    Image(systemName: "bubble.left")
-                        .font(.caption)
-                    Text("评论")
-                        .font(.caption)
+            HStack(spacing: 16) {
+                Button { showComments = true } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "bubble.left")
+                            .font(.caption)
+                        Text("评论")
+                            .font(.caption)
+                    }
+                    .foregroundColor(.secondary)
                 }
-                .foregroundColor(.secondary)
+
+                Spacer()
+
+                Button {
+                    Task { await socialService.toggleBookmark(checkinId: item.id) }
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: socialService.bookmarkedIds.contains(item.id) ? "bookmark.fill" : "bookmark")
+                            .font(.caption)
+                        Text("收藏")
+                            .font(.caption)
+                    }
+                    .foregroundColor(socialService.bookmarkedIds.contains(item.id) ? Color(red: 0.76, green: 0.6, blue: 0.42) : .secondary)
+                }
             }
         }
         .padding()

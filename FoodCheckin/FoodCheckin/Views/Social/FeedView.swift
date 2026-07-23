@@ -46,6 +46,7 @@ struct FeedView: View {
                 await socialService.loadFriends()
                 await socialService.loadFeed(refresh: true)
                 await socialService.loadUnreadCount()
+                _ = await socialService.loadBookmarks()
             }
         }
     }

@@ -83,6 +83,31 @@ struct CommentItem: Codable, Identifiable {
     }
 }
 
+struct BookmarkItem: Codable, Identifiable {
+    let id: String
+    let userId: String
+    let userNickname: String
+    let photoUrl: String
+    let placeName: String
+    let address: String
+    let category: String
+    let rating: Int
+    let latitude: Double
+    let longitude: Double
+    let createdAt: String
+    let bookmarkedAt: String
+
+    enum CodingKeys: String, CodingKey {
+        case id, address, category, rating, latitude, longitude
+        case userId = "user_id"
+        case userNickname = "user_nickname"
+        case photoUrl = "photo_url"
+        case placeName = "place_name"
+        case createdAt = "created_at"
+        case bookmarkedAt = "bookmarked_at"
+    }
+}
+
 @MainActor
 class SocialService: ObservableObject {
     @Published var feedItems: [FeedItem] = []
@@ -91,6 +116,7 @@ class SocialService: ObservableObject {
     @Published var unreadCount: Int = 0
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var bookmarkedIds: Set<String> = []
 
     private var nextCursor: String?
 
@@ -216,6 +242,31 @@ class SocialService: ObservableObject {
             return true
         } catch {
             return false
+        }
+    }
+
+    func toggleBookmark(checkinId: String) async {
+        do {
+            let data = try await APIClient.shared.post("/api/social/bookmarks/\(checkinId)", body: EmptyBody())
+            struct Resp: Codable { let bookmarked: Bool }
+            let response = try JSONDecoder().decode(Resp.self, from: data)
+            if response.bookmarked {
+                bookmarkedIds.insert(checkinId)
+            } else {
+                bookmarkedIds.remove(checkinId)
+            }
+        } catch {}
+    }
+
+    func loadBookmarks() async -> [BookmarkItem] {
+        do {
+            let data = try await APIClient.shared.get("/api/social/bookmarks")
+            struct Resp: Codable { let items: [BookmarkItem] }
+            let response = try JSONDecoder().decode(Resp.self, from: data)
+            bookmarkedIds = Set(response.items.map { $0.id })
+            return response.items
+        } catch {
+            return []
         }
     }
 }
