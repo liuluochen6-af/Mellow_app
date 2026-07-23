@@ -73,6 +73,7 @@ struct CheckInData: Codable {
     var isPublic: Bool = true
     var amount: Double?
     var amountType: AmountType?
+    var createdAt: Date?
 
     var serverJSON: [String: Any] {
         var dict: [String: Any] = [
@@ -93,6 +94,10 @@ struct CheckInData: Codable {
         if let note { dict["note"] = note }
         if let amount { dict["amount"] = amount }
         if let amountType { dict["amount_type"] = amountType.rawValue }
+        if let createdAt {
+            let formatter = ISO8601DateFormatter()
+            dict["created_at"] = formatter.string(from: createdAt)
+        }
         return dict
     }
 }

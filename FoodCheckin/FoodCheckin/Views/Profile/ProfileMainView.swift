@@ -75,6 +75,7 @@ struct ProfileMainView: View {
                 Text("删除后所有数据将无法恢复，确定要删除账号吗？")
             }
         }
+        .tint(Color(red: 0.76, green: 0.6, blue: 0.42))
     }
 
     @ViewBuilder

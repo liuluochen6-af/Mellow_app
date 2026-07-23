@@ -19,6 +19,8 @@ struct NewCheckInView: View {
     @State private var showShareAlert = false
     @State private var showError = false
     @State private var errorText = ""
+    @State private var useCustomDate = false
+    @State private var customDate = Date()
 
     var body: some View {
         NavigationStack {
@@ -52,6 +54,8 @@ struct NewCheckInView: View {
                     }
 
                     amountSection
+
+                    dateSection
 
                     Toggle("公开（好友可见）", isOn: $data.isPublic)
                         .tint(Color(red: 0.76, green: 0.6, blue: 0.42))
@@ -278,6 +282,24 @@ struct NewCheckInView: View {
                 }
                 .pickerStyle(.segmented)
                 .frame(width: 120)
+            }
+        }
+    }
+
+    private var dateSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Toggle("补打卡（选择日期）", isOn: $useCustomDate)
+                .tint(Color(red: 0.76, green: 0.6, blue: 0.42))
+                .onChange(of: useCustomDate) { _, on in
+                    data.createdAt = on ? customDate : nil
+                }
+            if useCustomDate {
+                DatePicker("打卡日期", selection: $customDate, in: ...Date(), displayedComponents: [.date])
+                    .datePickerStyle(.compact)
+                    .onChange(of: customDate) { _, newDate in
+                        data.createdAt = newDate
+                    }
+                    .onAppear { data.createdAt = customDate }
             }
         }
     }

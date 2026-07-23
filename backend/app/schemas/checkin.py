@@ -21,6 +21,7 @@ class CheckInCreate(BaseModel):
     is_public: bool = True
     amount: Decimal | None = None
     amount_type: str | None = None
+    created_at: datetime | None = None
 
 
 class CheckInUpdate(BaseModel):

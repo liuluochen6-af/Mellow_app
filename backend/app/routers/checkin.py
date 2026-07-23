@@ -63,7 +63,7 @@ async def create_checkin(
 
     photo_path = compress_and_save_image(file_bytes, photo.filename or "photo.jpg")
 
-    checkin = CheckIn(
+    checkin_kwargs = dict(
         user_id=current_user.id,
         photo_path=photo_path,
         place_name=parsed.place_name,
@@ -83,6 +83,9 @@ async def create_checkin(
         amount=parsed.amount,
         amount_type=parsed.amount_type,
     )
+    if parsed.created_at:
+        checkin_kwargs["created_at"] = parsed.created_at
+    checkin = CheckIn(**checkin_kwargs)
     db.add(checkin)
     await db.commit()
     await db.refresh(checkin)
@@ -216,6 +219,7 @@ async def get_map_pins(
             CheckIn.rating,
             CheckIn.photo_path,
             CheckIn.created_at,
+            CheckIn.city,
         )
         .where(CheckIn.user_id == current_user.id)
         .order_by(desc(CheckIn.created_at))
@@ -235,6 +239,7 @@ async def get_map_pins(
             "rating": row.rating,
             "photo_url": row.photo_path,
             "created_at": row.created_at.isoformat(),
+            "city": row.city or "",
         })
 
     return {"pins": pins}

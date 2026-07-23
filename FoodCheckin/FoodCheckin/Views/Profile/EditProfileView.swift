@@ -23,6 +23,20 @@ struct EditProfileView: View {
                                     .scaledToFill()
                                     .frame(width: 80, height: 80)
                                     .clipShape(Circle())
+                            } else if let url = authService.currentUser?.avatarUrl,
+                                      !url.isEmpty,
+                                      let fullURL = URL(string: APIClient.shared.baseURL + url) {
+                                AsyncImage(url: fullURL) { image in
+                                    image.resizable()
+                                        .scaledToFill()
+                                        .frame(width: 80, height: 80)
+                                        .clipShape(Circle())
+                                } placeholder: {
+                                    Circle()
+                                        .fill(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.3))
+                                        .frame(width: 80, height: 80)
+                                        .overlay(ProgressView())
+                                }
                             } else {
                                 Circle()
                                     .fill(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.3))
