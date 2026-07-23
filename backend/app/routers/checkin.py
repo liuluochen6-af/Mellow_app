@@ -99,6 +99,7 @@ async def search_checkins(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    from sqlalchemy import cast, String
     search_term = f"%{q}%"
     query = (
         select(CheckIn)
@@ -106,7 +107,7 @@ async def search_checkins(
         .where(
             (CheckIn.place_name.ilike(search_term))
             | (CheckIn.address.ilike(search_term))
-            | (CheckIn.tags.ilike(search_term))
+            | (cast(CheckIn.tags, String).ilike(search_term))
             | (CheckIn.note.ilike(search_term))
         )
         .order_by(desc(CheckIn.created_at))

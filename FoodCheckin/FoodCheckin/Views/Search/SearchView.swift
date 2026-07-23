@@ -4,6 +4,8 @@ struct SearchView: View {
     @State private var query = ""
     @State private var results: [CheckInResponse] = []
     @State private var isLoading = false
+    @State private var errorMessage: String?
+    @State private var hasSearched = false
 
     var body: some View {
         NavigationStack {
@@ -13,13 +15,23 @@ struct SearchView: View {
                         .foregroundColor(.secondary)
                     TextField("搜索店铺、地点、标签...", text: $query)
                         .autocorrectionDisabled()
-                        .onSubmit { Task { await search() } }
+                        .onSubmit { doSearch() }
                     if !query.isEmpty {
-                        Button { query = ""; results = [] } label: {
+                        Button { query = ""; results = []; hasSearched = false; errorMessage = nil } label: {
                             Image(systemName: "xmark.circle.fill")
                                 .foregroundColor(.secondary)
                         }
                     }
+                    Button { doSearch() } label: {
+                        Text("搜索")
+                            .font(.subheadline.bold())
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color(red: 0.76, green: 0.6, blue: 0.42))
+                            .cornerRadius(8)
+                    }
+                    .disabled(query.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
                 .padding(10)
                 .background(Color(.systemGray6))
@@ -31,7 +43,18 @@ struct SearchView: View {
                     Spacer()
                     ProgressView()
                     Spacer()
-                } else if results.isEmpty && !query.isEmpty {
+                } else if let error = errorMessage {
+                    Spacer()
+                    VStack(spacing: 8) {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.system(size: 40))
+                            .foregroundColor(.orange.opacity(0.7))
+                        Text(error)
+                            .foregroundColor(.secondary)
+                            .font(.caption)
+                    }
+                    Spacer()
+                } else if results.isEmpty && hasSearched {
                     Spacer()
                     VStack(spacing: 8) {
                         Image(systemName: "magnifyingglass")
@@ -41,11 +64,22 @@ struct SearchView: View {
                             .foregroundColor(.secondary)
                     }
                     Spacer()
-                } else {
+                } else if !results.isEmpty {
                     List(results) { checkIn in
                         SearchResultRow(checkIn: checkIn)
                     }
                     .listStyle(.plain)
+                } else {
+                    Spacer()
+                    VStack(spacing: 8) {
+                        Image(systemName: "magnifyingglass")
+                            .font(.system(size: 40))
+                            .foregroundColor(.secondary.opacity(0.3))
+                        Text("搜索店名、地址、标签、备注")
+                            .foregroundColor(.secondary)
+                            .font(.caption)
+                    }
+                    Spacer()
                 }
             }
             .background(Color(red: 0.98, green: 0.96, blue: 0.93).ignoresSafeArea())
@@ -54,9 +88,17 @@ struct SearchView: View {
         }
     }
 
+    private func doSearch() {
+        let trimmed = query.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return }
+        Task { await search() }
+    }
+
     private func search() async {
         guard !query.trimmingCharacters(in: .whitespaces).isEmpty else { return }
         isLoading = true
+        errorMessage = nil
+        hasSearched = true
         defer { isLoading = false }
         do {
             let encoded = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
@@ -65,6 +107,7 @@ struct SearchView: View {
             results = response.items
         } catch {
             results = []
+            errorMessage = "搜索失败: \(error.localizedDescription)"
         }
     }
 }

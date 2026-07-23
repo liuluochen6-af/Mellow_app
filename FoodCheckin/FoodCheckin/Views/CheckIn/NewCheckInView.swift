@@ -296,6 +296,8 @@ struct NewCheckInView: View {
             if useCustomDate {
                 DatePicker("打卡日期", selection: $customDate, in: ...Date(), displayedComponents: [.date])
                     .datePickerStyle(.compact)
+                    .tint(Color(red: 0.76, green: 0.6, blue: 0.42))
+                    .environment(\.locale, Locale(identifier: "zh_CN"))
                     .onChange(of: customDate) { _, newDate in
                         data.createdAt = newDate
                     }
