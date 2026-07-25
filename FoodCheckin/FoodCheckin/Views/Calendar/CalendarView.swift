@@ -11,7 +11,7 @@ struct CalendarView: View {
             VStack(spacing: 4) {
                 Text("今天")
                     .font(.system(size: 32, weight: .bold))
-                    .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                    .foregroundColor(.black)
                 Text(todaySubtitle)
                     .font(.subheadline)
                     .foregroundColor(.secondary)
@@ -34,9 +34,9 @@ struct CalendarView: View {
                     .padding(.vertical, 6)
                     .background(Color.white)
                     .cornerRadius(8)
-                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(red: 0.76, green: 0.6, blue: 0.42), lineWidth: 1.5))
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.black, lineWidth: 1.5))
                 }
-                .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                .foregroundColor(.black)
 
                 Button {
                     showMonthPicker = true
@@ -51,9 +51,9 @@ struct CalendarView: View {
                     .padding(.vertical, 6)
                     .background(Color.white)
                     .cornerRadius(8)
-                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(red: 0.76, green: 0.6, blue: 0.42), lineWidth: 1.5))
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.black, lineWidth: 1.5))
                 }
-                .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                .foregroundColor(.black)
 
                 Spacer()
 
@@ -62,7 +62,7 @@ struct CalendarView: View {
                 } label: {
                     Text("回到今天")
                         .font(.caption)
-                        .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                        .foregroundColor(.black)
                 }
             }
             .padding(.horizontal, 16)
@@ -84,7 +84,7 @@ struct CalendarView: View {
 
             Spacer()
         }
-        .background(Color(red: 0.98, green: 0.96, blue: 0.93).ignoresSafeArea())
+        .background(Color.white.ignoresSafeArea())
         .confirmationDialog("选择年份", isPresented: $showYearPicker) {
             ForEach((2020...Calendar.current.component(.year, from: Date())), id: \.self) { year in
                 Button("\(String(year))年") {

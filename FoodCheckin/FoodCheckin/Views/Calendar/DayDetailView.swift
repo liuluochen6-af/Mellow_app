@@ -10,7 +10,7 @@ struct DayDetailView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("\(month)月\(day)日 · \(checkIns.count)次打卡")
                 .font(.subheadline.bold())
-                .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                .foregroundColor(.primary)
                 .padding(.horizontal)
 
             ScrollView(.horizontal, showsIndicators: false) {
@@ -31,7 +31,7 @@ struct DayDetailView: View {
                             Text(checkIn.placeName)
                                 .font(.caption)
                                 .lineLimit(1)
-                                .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                                .foregroundColor(.primary)
 
                             HStack(spacing: 2) {
                                 Text(categoryIcon(checkIn.category))
@@ -85,7 +85,7 @@ struct CheckInDetailSheet: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(checkIn.placeName)
                             .font(.title2.bold())
-                            .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                            .foregroundColor(.primary)
 
                         if !checkIn.address.isEmpty {
                             Label(checkIn.address, systemImage: "mappin.circle")
@@ -107,7 +107,7 @@ struct CheckInDetailSheet: View {
                                         .font(.caption)
                                         .padding(.horizontal, 8)
                                         .padding(.vertical, 4)
-                                        .background(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.15))
+                                        .background(Color(.systemGray6))
                                         .cornerRadius(8)
                                 }
                             }
@@ -116,7 +116,7 @@ struct CheckInDetailSheet: View {
                         if let note = checkIn.note, !note.isEmpty {
                             Text(note)
                                 .font(.body)
-                                .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                                .foregroundColor(.primary)
                                 .padding(.top, 4)
                         }
 

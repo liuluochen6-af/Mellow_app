@@ -20,16 +20,16 @@ struct FriendRequestsView: View {
                 ForEach(socialService.friendRequests) { request in
                     HStack {
                         Circle()
-                            .fill(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.3))
+                            .fill(Color(.systemGray4))
                             .frame(width: 40, height: 40)
                             .overlay(
                                 Text(String(request.nickname.prefix(1)))
                                     .font(.caption.bold())
-                                    .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                                    .foregroundColor(.white)
                             )
 
                         Text(request.nickname)
-                            .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                            .foregroundColor(.primary)
 
                         Spacer()
 
@@ -40,7 +40,7 @@ struct FriendRequestsView: View {
                         .foregroundColor(.white)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 6)
-                        .background(Color(red: 0.76, green: 0.6, blue: 0.42))
+                        .background(Color.black)
                         .cornerRadius(12)
 
                         Button("拒绝") {

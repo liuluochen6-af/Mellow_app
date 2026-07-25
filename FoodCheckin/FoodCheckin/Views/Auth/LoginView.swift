@@ -13,12 +13,12 @@ struct LoginView: View {
                 VStack(spacing: 12) {
                     Image(systemName: "mappin.and.ellipse")
                         .font(.system(size: 60))
-                        .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                        .foregroundColor(.black)
 
                     Text("吃喝玩乐打卡")
                         .font(.largeTitle)
                         .fontWeight(.bold)
-                        .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                        .foregroundColor(.black)
 
                     Text("记录你的探索足迹")
                         .font(.subheadline)
@@ -46,7 +46,7 @@ struct LoginView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
-                        .background(Color(red: 0.76, green: 0.6, blue: 0.42))
+                        .background(Color.black)
                         .foregroundColor(.white)
                         .cornerRadius(25)
                     }
@@ -61,7 +61,7 @@ struct LoginView: View {
                         .padding(.bottom)
                 }
             }
-            .background(Color(red: 0.98, green: 0.96, blue: 0.93).ignoresSafeArea())
+            .background(Color.white.ignoresSafeArea())
             .navigationDestination(isPresented: $showPhoneLogin) {
                 PhoneLoginView()
             }

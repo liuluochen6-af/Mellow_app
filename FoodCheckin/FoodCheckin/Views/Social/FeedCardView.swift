@@ -9,18 +9,18 @@ struct FeedCardView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 10) {
                 Circle()
-                    .fill(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.3))
+                    .fill(Color(.systemGray4))
                     .frame(width: 36, height: 36)
                     .overlay(
                         Text(String(item.userNickname.prefix(1)))
                             .font(.caption.bold())
-                            .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                            .foregroundColor(.white)
                     )
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(item.userNickname)
                         .font(.subheadline.bold())
-                        .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                        .foregroundColor(.primary)
                     Text(formatDate(item.createdAt))
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -47,7 +47,7 @@ struct FeedCardView: View {
             HStack {
                 Text(item.placeName)
                     .font(.subheadline.bold())
-                    .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                    .foregroundColor(.primary)
                 Spacer()
                 Text(ratingLabel(item.rating))
                     .font(.caption)
@@ -69,10 +69,10 @@ struct FeedCardView: View {
                     ForEach(item.tags.prefix(3), id: \.self) { tag in
                         Text("#\(tag)")
                             .font(.caption2)
-                            .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                            .foregroundColor(.black)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 3)
-                            .background(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.1))
+                            .background(Color(.systemGray6))
                             .cornerRadius(8)
                     }
                 }
@@ -114,7 +114,7 @@ struct FeedCardView: View {
                         Text("收藏")
                             .font(.caption)
                     }
-                    .foregroundColor(socialService.bookmarkedIds.contains(item.id) ? Color(red: 0.76, green: 0.6, blue: 0.42) : .secondary)
+                    .foregroundColor(socialService.bookmarkedIds.contains(item.id) ? .black : .secondary)
                 }
             }
         }

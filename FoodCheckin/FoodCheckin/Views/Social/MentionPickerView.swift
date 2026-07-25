@@ -10,19 +10,19 @@ struct MentionPickerView: View {
             List(friends) { friend in
                 HStack {
                     Circle()
-                        .fill(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.3))
+                        .fill(Color(.systemGray4))
                         .frame(width: 32, height: 32)
                         .overlay(
                             Text(String(friend.nickname.prefix(1)))
                                 .font(.caption2.bold())
-                                .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                                .foregroundColor(.white)
                         )
                     Text(friend.nickname)
-                        .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                        .foregroundColor(.primary)
                     Spacer()
                     if selectedIds.contains(friend.id) {
                         Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                            .foregroundColor(.black)
                     }
                 }
                 .contentShape(Rectangle())

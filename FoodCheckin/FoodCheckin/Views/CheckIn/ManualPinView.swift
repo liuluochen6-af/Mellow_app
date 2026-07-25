@@ -9,27 +9,84 @@ struct ManualPinView: View {
     @State private var placeName = ""
     @State private var cameraPosition: MapCameraPosition
     @StateObject private var locationService = LocationService()
+    @State private var searchResults: [MKMapItem] = []
+    @State private var isSearching = false
+    @State private var searchTask: Task<Void, Never>?
 
     init(selectedPlace: Binding<SelectedPlace?>, initialCoordinate: CLLocationCoordinate2D?) {
         _selectedPlace = selectedPlace
-        let coord = initialCoordinate ?? CLLocationCoordinate2D(latitude: 37.79, longitude: -122.41)
-        _cameraPosition = State(initialValue: .region(MKCoordinateRegion(
-            center: coord,
-            latitudinalMeters: 1000,
-            longitudinalMeters: 1000
-        )))
+        if let coord = initialCoordinate {
+            _cameraPosition = State(initialValue: .region(MKCoordinateRegion(
+                center: coord,
+                latitudinalMeters: 200,
+                longitudinalMeters: 200
+            )))
+        } else {
+            _cameraPosition = State(initialValue: .userLocation(fallback: .region(MKCoordinateRegion(
+                center: CLLocationCoordinate2D(latitude: 39.9, longitude: 116.4),
+                latitudinalMeters: 500,
+                longitudinalMeters: 500
+            ))))
+        }
     }
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                TextField("输入地点名称", text: $placeName)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
-                    .padding()
+                // Search input
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.secondary)
+                    TextField("搜索店铺名称", text: $placeName)
+                        .textFieldStyle(.plain)
+                    if !placeName.isEmpty {
+                        Button {
+                            placeName = ""
+                            searchResults = []
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+                .padding(12)
+                .background(Color(.systemGray6))
+                .cornerRadius(12)
+                .padding(.horizontal)
+                .padding(.top, 8)
+                .onChange(of: placeName) { _, newValue in
+                    searchTask?.cancel()
+                    searchTask = Task {
+                        try? await Task.sleep(nanoseconds: 300_000_000)
+                        guard !Task.isCancelled else { return }
+                        await performSearch(query: newValue)
+                    }
+                }
 
-                mapContent
+                // Search results list
+                if !searchResults.isEmpty {
+                    List(searchResults, id: \.self) { item in
+                        Button {
+                            selectSearchResult(item)
+                        } label: {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(item.name ?? "未知地点")
+                                    .font(.subheadline.bold())
+                                    .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                                Text(item.placemark.formattedAddress)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .lineLimit(1)
+                            }
+                            .padding(.vertical, 2)
+                        }
+                    }
+                    .listStyle(.plain)
+                    .frame(maxHeight: 200)
+                } else {
+                    // Map
+                    mapContent
+                }
             }
             .navigationTitle("手动标注")
             .navigationBarTitleDisplayMode(.inline)
@@ -39,7 +96,7 @@ struct ManualPinView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("确定") { confirmPin() }
-                        .disabled(placeName.isEmpty)
+                        .disabled(placeName.isEmpty || pinCoordinate == nil)
                 }
             }
         }
@@ -62,8 +119,48 @@ struct ManualPinView: View {
         }
     }
 
+    private func performSearch(query: String) async {
+        guard !query.isEmpty else {
+            searchResults = []
+            return
+        }
+
+        let request = MKLocalSearch.Request()
+        request.naturalLanguageQuery = query
+        if let coord = locationService.currentLocation {
+            request.region = MKCoordinateRegion(
+                center: coord,
+                latitudinalMeters: 10000,
+                longitudinalMeters: 10000
+            )
+        }
+
+        do {
+            let search = MKLocalSearch(request: request)
+            let response = try await search.start()
+            searchResults = response.mapItems
+        } catch {
+            searchResults = []
+        }
+    }
+
+    private func selectSearchResult(_ item: MKMapItem) {
+        let coord = item.placemark.coordinate
+        placeName = item.name ?? ""
+        pinCoordinate = coord
+        searchResults = []
+
+        withAnimation {
+            cameraPosition = .region(MKCoordinateRegion(
+                center: coord,
+                latitudinalMeters: 200,
+                longitudinalMeters: 200
+            ))
+        }
+    }
+
     private func confirmPin() {
-        let coord = pinCoordinate ?? CLLocationCoordinate2D(latitude: 37.79, longitude: -122.41)
+        guard let coord = pinCoordinate else { return }
         Task {
             let geo = await locationService.reverseGeocode(coordinate: coord)
             selectedPlace = SelectedPlace(
@@ -79,6 +176,16 @@ struct ManualPinView: View {
             )
             dismiss()
         }
+    }
+}
+
+// MARK: - Placemark address helper
+
+extension CLPlacemark {
+    var formattedAddress: String {
+        [administrativeArea, locality, subLocality, thoroughfare, subThoroughfare]
+            .compactMap { $0 }
+            .joined()
     }
 }
 
@@ -111,36 +218,27 @@ private struct MapWithCenterPin: View {
     @Binding var cameraPosition: MapCameraPosition
     @Binding var pinCoordinate: CLLocationCoordinate2D?
     @Binding var placeName: String
-    @State private var isGeocoding = false
 
     var body: some View {
         ZStack {
-            Map(position: $cameraPosition)
-                .onMapCameraChange(frequency: .onEnd) { context in
-                    pinCoordinate = context.region.center
-                    geocode(context.region.center)
-                }
-
-            Image(systemName: "mappin.circle.fill")
-                .font(.system(size: 32))
-                .foregroundColor(.red)
-                .offset(y: -16)
-        }
-    }
-
-    private func geocode(_ coordinate: CLLocationCoordinate2D) {
-        isGeocoding = true
-        Task {
-            let geocoder = CLGeocoder()
-            let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-            if let placemarks = try? await geocoder.reverseGeocodeLocation(location),
-               let placemark = placemarks.first {
-                let name = placemark.name ?? placemark.thoroughfare ?? ""
-                if !name.isEmpty {
-                    placeName = name
+            Map(position: $cameraPosition) {
+                if let pinCoordinate {
+                    Marker(placeName, coordinate: pinCoordinate)
+                        .tint(.red)
                 }
             }
-            isGeocoding = false
+            .onMapCameraChange(frequency: .onEnd) { context in
+                if pinCoordinate == nil {
+                    pinCoordinate = context.region.center
+                }
+            }
+
+            if pinCoordinate == nil {
+                Image(systemName: "mappin.circle.fill")
+                    .font(.system(size: 32))
+                    .foregroundColor(.red)
+                    .offset(y: -16)
+            }
         }
     }
 }

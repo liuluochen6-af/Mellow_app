@@ -7,11 +7,11 @@ struct AboutView: View {
 
             Image(systemName: "fork.knife.circle.fill")
                 .font(.system(size: 80))
-                .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                .foregroundColor(.black)
 
             Text("吃喝玩乐打卡")
                 .font(.title2.bold())
-                .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                .foregroundColor(.primary)
 
             Text("v1.0.0")
                 .font(.subheadline)
@@ -26,7 +26,7 @@ struct AboutView: View {
             Spacer()
         }
         .frame(maxWidth: .infinity)
-        .background(Color(red: 0.98, green: 0.96, blue: 0.93).ignoresSafeArea())
+        .background(Color(UIColor.systemBackground).ignoresSafeArea())
         .navigationTitle("关于")
         .navigationBarTitleDisplayMode(.inline)
     }

@@ -21,7 +21,7 @@ struct DayCellView: View {
 
             Text("\(day)")
                 .font(.system(size: 15, weight: isToday ? .bold : .medium))
-                .foregroundColor(isToday ? .white : Color(red: 0.35, green: 0.25, blue: 0.15))
+                .foregroundColor(isToday ? .white : .primary)
         }
         .frame(maxWidth: .infinity)
         .frame(height: 44)
@@ -31,13 +31,13 @@ struct DayCellView: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 10)
-                .stroke(isSelected ? Color(red: 0.76, green: 0.6, blue: 0.42) : .clear, lineWidth: 2)
+                .stroke(isSelected ? Color.black : .clear, lineWidth: 2)
         )
     }
 
     private var cellBackground: Color {
         if isToday {
-            return Color(red: 0.76, green: 0.6, blue: 0.42)
+            return Color.black
         } else if !checkIns.isEmpty {
             return Color(.systemGray5)
         } else {

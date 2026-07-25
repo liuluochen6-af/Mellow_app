@@ -13,8 +13,8 @@ struct MapView: View {
             Map(position: $cameraPosition, selection: $selectedPin) {
                 ForEach(viewModel.visitedPolygons, id: \.id) { polygon in
                     MapPolygon(coordinates: polygon.coordinates)
-                        .foregroundStyle(fillColor.opacity(0.3))
-                        .stroke(fillColor.opacity(0.6), lineWidth: 1)
+                        .foregroundStyle(Color.black.opacity(0.08))
+                        .stroke(Color.black.opacity(0.15), lineWidth: 1)
                 }
 
                 ForEach(viewModel.pins) { pin in
@@ -54,7 +54,7 @@ struct MapView: View {
                 } label: {
                     Image(systemName: "list.bullet")
                         .font(.body.weight(.medium))
-                        .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                        .foregroundColor(Color.black)
                         .padding(10)
                         .background(.ultraThinMaterial)
                         .clipShape(Circle())
@@ -65,7 +65,7 @@ struct MapView: View {
                 // Current region label
                 Text(viewModel.selectedRegion)
                     .font(.headline)
-                    .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                    .foregroundColor(Color.black)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 8)
                     .background(.ultraThinMaterial)
@@ -86,7 +86,7 @@ struct MapView: View {
                 } label: {
                     Image(systemName: "arrow.uturn.backward")
                         .font(.body.weight(.medium))
-                        .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                        .foregroundColor(Color.black)
                         .padding(10)
                         .background(.ultraThinMaterial)
                         .clipShape(Circle())
@@ -125,7 +125,7 @@ struct MapView: View {
     }
 
     private var fillColor: Color {
-        Color(red: 0.76, green: 0.6, blue: 0.42)
+        Color.black
     }
 
     private func selectRegion(_ region: MapRegionOption) {
@@ -159,11 +159,11 @@ struct RegionMenuView: View {
                         } label: {
                             HStack {
                                 Image(systemName: region.name == "全球" ? "globe.asia.australia" : "mappin.circle.fill")
-                                    .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                                    .foregroundColor(Color.black)
                                     .frame(width: 28)
 
                                 Text(region.name)
-                                    .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                                    .foregroundColor(Color.primary)
 
                                 Spacer()
 
@@ -173,7 +173,7 @@ struct RegionMenuView: View {
 
                                 if viewModel.selectedRegion == region.name {
                                     Image(systemName: "checkmark")
-                                        .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                                        .foregroundColor(Color.black)
                                         .font(.caption.bold())
                                 }
                             }

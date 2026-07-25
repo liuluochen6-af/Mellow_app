@@ -14,7 +14,7 @@ struct StatsView: View {
             }
             .padding()
         }
-        .background(Color(red: 0.98, green: 0.96, blue: 0.93).ignoresSafeArea())
+        .background(Color(UIColor.systemGroupedBackground).ignoresSafeArea())
         .navigationTitle("统计")
         .navigationBarTitleDisplayMode(.inline)
         .task { await viewModel.loadAll() }
@@ -38,10 +38,10 @@ struct StatsView: View {
                 HStack(spacing: 4) {
                     Text("\(String(viewModel.selectedYear))年")
                         .font(.headline)
-                        .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                        .foregroundColor(.primary)
                     Image(systemName: "chevron.down")
                         .font(.caption)
-                        .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                        .foregroundColor(.secondary)
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
@@ -59,10 +59,10 @@ struct StatsView: View {
                 HStack(spacing: 4) {
                     Text("\(viewModel.selectedMonth)月")
                         .font(.headline)
-                        .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                        .foregroundColor(.primary)
                     Image(systemName: "chevron.down")
                         .font(.caption)
-                        .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                        .foregroundColor(.secondary)
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
@@ -77,10 +77,10 @@ struct StatsView: View {
             } label: {
                 Text("全年")
                     .font(.subheadline)
-                    .foregroundColor(viewModel.selectedMonth == 0 ? .white : Color(red: 0.76, green: 0.6, blue: 0.42))
+                    .foregroundColor(viewModel.selectedMonth == 0 ? .white : .primary)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
-                    .background(viewModel.selectedMonth == 0 ? Color(red: 0.76, green: 0.6, blue: 0.42) : Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.15))
+                    .background(viewModel.selectedMonth == 0 ? Color.black : Color(.systemGray5))
                     .cornerRadius(14)
             }
 
@@ -91,10 +91,10 @@ struct StatsView: View {
             } label: {
                 Text("本月")
                     .font(.subheadline)
-                    .foregroundColor(viewModel.selectedMonth != 0 ? Color(red: 0.76, green: 0.6, blue: 0.42) : Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.6))
+                    .foregroundColor(viewModel.selectedMonth != 0 ? .primary : .secondary)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
-                    .background(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.15))
+                    .background(Color(.systemGray5))
                     .cornerRadius(14)
             }
         }
@@ -108,7 +108,7 @@ struct StatsView: View {
         VStack(spacing: 16) {
             Text("探索足迹")
                 .font(.headline)
-                .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                .foregroundColor(.primary)
 
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 16) {
                 StatItem(value: "\(viewModel.overview.totalCheckins)", label: "总打卡")
@@ -128,7 +128,7 @@ struct StatsView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("类别分布")
                 .font(.headline)
-                .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                .foregroundColor(.primary)
 
             if viewModel.categories.isEmpty {
                 Text("本月暂无打卡")
@@ -137,20 +137,19 @@ struct StatsView: View {
             } else {
                 ForEach(viewModel.categories, id: \.category) { item in
                     HStack {
-                        Text(categoryIcon(item.category))
                         Text(categoryName(item.category))
                             .font(.subheadline)
-                            .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                            .foregroundColor(.primary)
                         Spacer()
                         Text("\(item.count)")
                             .font(.subheadline.bold())
-                            .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                            .foregroundColor(.primary)
 
                         let total = viewModel.categories.reduce(0) { $0 + $1.count }
                         let pct = total > 0 ? Double(item.count) / Double(total) : 0
                         GeometryReader { geo in
                             RoundedRectangle(cornerRadius: 4)
-                                .fill(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.3))
+                                .fill(Color.black.opacity(pct > 0.5 ? 0.8 : 0.3))
                                 .frame(width: geo.size.width * pct)
                         }
                         .frame(width: 60, height: 8)
@@ -167,7 +166,7 @@ struct StatsView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("消费统计")
                 .font(.headline)
-                .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                .foregroundColor(.primary)
 
             HStack {
                 VStack(alignment: .leading) {
@@ -176,7 +175,7 @@ struct StatsView: View {
                         .foregroundColor(.secondary)
                     Text("¥\(String(format: "%.0f", viewModel.spending.total))")
                         .font(.title2.bold())
-                        .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                        .foregroundColor(.primary)
                 }
                 Spacer()
                 VStack(alignment: .trailing) {
@@ -185,7 +184,7 @@ struct StatsView: View {
                         .foregroundColor(.secondary)
                     Text("\(viewModel.spending.count)")
                         .font(.title2.bold())
-                        .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                        .foregroundColor(.primary)
                 }
             }
 
@@ -193,14 +192,13 @@ struct StatsView: View {
                 Divider()
                 ForEach(viewModel.spending.byCategory, id: \.category) { item in
                     HStack {
-                        Text(categoryIcon(item.category))
                         Text(categoryName(item.category))
-                            .font(.caption)
+                            .font(.subheadline)
                             .foregroundColor(.secondary)
                         Spacer()
                         Text("¥\(String(format: "%.0f", item.amount))")
                             .font(.subheadline)
-                            .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                            .foregroundColor(.primary)
                     }
                 }
             }
@@ -214,7 +212,7 @@ struct StatsView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("最佳推荐")
                 .font(.headline)
-                .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                .foregroundColor(.primary)
 
             if viewModel.topPlaces.isEmpty {
                 Text("本月暂无打卡记录")
@@ -228,14 +226,13 @@ struct StatsView: View {
                             .font(.caption.bold())
                             .foregroundColor(.white)
                             .frame(width: 20, height: 20)
-                            .background(index < 3 ? Color(red: 0.76, green: 0.6, blue: 0.42) : Color.gray)
+                            .background(index < 3 ? Color.black : Color.gray)
                             .clipShape(Circle())
 
-                        Text(categoryIcon(place.category))
                         VStack(alignment: .leading) {
                             Text(place.placeName)
                                 .font(.subheadline)
-                                .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                                .foregroundColor(.primary)
                             Text("去过\(place.visitCount)次")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
@@ -252,7 +249,6 @@ struct StatsView: View {
         .cornerRadius(16)
     }
 
-    private func categoryIcon(_ category: String) -> String { category.categoryIcon }
     private func categoryName(_ category: String) -> String { category.categoryDisplayName }
     private func ratingLabel(_ rating: Int) -> String { .ratingLabel(rating) }
 }
@@ -265,7 +261,7 @@ struct StatItem: View {
         VStack(spacing: 4) {
             Text(value)
                 .font(.title3.bold())
-                .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                .foregroundColor(.primary)
             Text(label)
                 .font(.caption)
                 .foregroundColor(.secondary)

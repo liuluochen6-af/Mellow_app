@@ -38,22 +38,20 @@ struct CommentsView: View {
                 HStack(spacing: 8) {
                     Button { showMentionPicker = true } label: {
                         Image(systemName: "at")
-                            .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                            .foregroundColor(.primary)
                     }
 
                     TextField("写评论...", text: $newComment)
                         .textFieldStyle(.plain)
                         .padding(10)
-                        .background(Color(.systemGray6))
+                        .background(Color(UIColor.systemGray6))
                         .cornerRadius(20)
 
                     Button {
                         Task { await sendComment() }
                     } label: {
                         Image(systemName: "paperplane.fill")
-                            .foregroundColor(
-                                newComment.isEmpty ? .secondary : Color(red: 0.76, green: 0.6, blue: 0.42)
-                            )
+                            .foregroundColor(newComment.isEmpty ? .secondary : .primary)
                     }
                     .disabled(newComment.isEmpty)
                 }
@@ -92,19 +90,19 @@ struct CommentRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
             Circle()
-                .fill(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.3))
+                .fill(Color(.systemGray4))
                 .frame(width: 30, height: 30)
                 .overlay(
                     Text(String(comment.userNickname.prefix(1)))
                         .font(.caption2.bold())
-                        .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                        .foregroundColor(.white)
                 )
 
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
                     Text(comment.userNickname)
                         .font(.caption.bold())
-                        .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                        .foregroundColor(.primary)
                     Spacer()
                     Text(formatDate(comment.createdAt))
                         .font(.caption2)
@@ -112,7 +110,7 @@ struct CommentRow: View {
                 }
                 Text(comment.content)
                     .font(.subheadline)
-                    .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                    .foregroundColor(.primary)
             }
         }
     }

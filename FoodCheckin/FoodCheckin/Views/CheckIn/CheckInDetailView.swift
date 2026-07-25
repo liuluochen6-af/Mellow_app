@@ -29,12 +29,12 @@ struct CheckInDetailView: View {
                         VStack(alignment: .leading, spacing: 12) {
                             Text(checkIn.placeName)
                                 .font(.title2.bold())
-                                .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                                .foregroundColor(Color.primary)
 
                             if !checkIn.address.isEmpty {
                                 HStack(spacing: 6) {
                                     Image(systemName: "mappin.circle.fill")
-                                        .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                                        .foregroundColor(Color.black)
                                     Text(checkIn.address)
                                         .font(.subheadline)
                                         .foregroundColor(.secondary)
@@ -44,11 +44,11 @@ struct CheckInDetailView: View {
                             HStack(spacing: 16) {
                                 Label(categoryName(checkIn.category), systemImage: "tag.fill")
                                     .font(.subheadline)
-                                    .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                                    .foregroundColor(Color(.systemGray))
 
                                 Label(ratingLabel(checkIn.rating), systemImage: "star.fill")
                                     .font(.subheadline)
-                                    .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                                    .foregroundColor(Color(.systemGray))
                             }
 
                             if !checkIn.tags.isEmpty {
@@ -58,7 +58,7 @@ struct CheckInDetailView: View {
                                             .font(.caption)
                                             .padding(.horizontal, 10)
                                             .padding(.vertical, 6)
-                                            .background(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.1))
+                                            .background(Color(.systemGray6))
                                             .cornerRadius(16)
                                     }
                                 }
@@ -67,7 +67,7 @@ struct CheckInDetailView: View {
                             if let note = checkIn.note, !note.isEmpty {
                                 Text(note)
                                     .font(.body)
-                                    .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                                    .foregroundColor(Color.primary)
                                     .padding()
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .background(Color(.systemGray6))
@@ -77,7 +77,7 @@ struct CheckInDetailView: View {
                             if let amount = checkIn.amount {
                                 HStack {
                                     Image(systemName: "yensign.circle.fill")
-                                        .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                                        .foregroundColor(Color.black)
                                     Text(String(format: "%.0f", amount))
                                         .font(.subheadline)
                                     Text(checkIn.amountType == "per_person" ? "人均" : "总计")
@@ -103,7 +103,7 @@ struct CheckInDetailView: View {
                         .frame(maxWidth: .infinity, minHeight: 300)
                 }
             }
-            .background(Color(red: 0.98, green: 0.96, blue: 0.93))
+            .background(Color.white)
             .navigationTitle("打卡详情")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

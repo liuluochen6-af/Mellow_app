@@ -13,7 +13,7 @@ struct FeedView: View {
                     feedList
                 }
             }
-            .background(Color(red: 0.98, green: 0.96, blue: 0.93).ignoresSafeArea())
+            .background(Color(UIColor.systemGroupedBackground).ignoresSafeArea())
             .navigationTitle("动态")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -55,11 +55,11 @@ struct FeedView: View {
         VStack(spacing: 16) {
             Image(systemName: "person.2.fill")
                 .font(.system(size: 60))
-                .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.5))
+                .foregroundColor(Color(.systemGray3))
 
             Text("还没有好友")
                 .font(.title3)
-                .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                .foregroundColor(.primary)
 
             Text("添加好友，看看他们的探店记录吧")
                 .font(.subheadline)
@@ -73,7 +73,7 @@ struct FeedView: View {
                     .foregroundColor(.white)
                     .padding(.horizontal, 24)
                     .padding(.vertical, 12)
-                    .background(Color(red: 0.76, green: 0.6, blue: 0.42))
+                    .background(Color.black)
                     .cornerRadius(24)
             }
         }

@@ -58,14 +58,14 @@ struct NewCheckInView: View {
                     dateSection
 
                     Toggle("公开（好友可见）", isOn: $data.isPublic)
-                        .tint(Color(red: 0.76, green: 0.6, blue: 0.42))
+                        .tint(Color.black)
                 }
                 .padding()
                 .padding(.bottom, 40)
             }
             .scrollDismissesKeyboard(.interactively)
             .contentMargins(.bottom, 20, for: .scrollContent)
-            .background(Color(red: 0.98, green: 0.96, blue: 0.93))
+            .background(Color.white)
             .navigationTitle("打卡")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -145,7 +145,7 @@ struct NewCheckInView: View {
                     VStack(spacing: 12) {
                         Image(systemName: "camera.fill")
                             .font(.largeTitle)
-                            .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                            .foregroundColor(Color(.systemGray))
                         Text("选择照片")
                             .foregroundColor(.secondary)
                     }
@@ -166,7 +166,7 @@ struct NewCheckInView: View {
             } label: {
                 HStack {
                     Image(systemName: "mappin.circle.fill")
-                        .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                        .foregroundColor(Color.black)
                     if data.placeName.isEmpty {
                         Text("选择地点")
                             .foregroundColor(.secondary)
@@ -215,14 +215,14 @@ struct NewCheckInView: View {
                     } label: {
                         Text(tag)
                             .font(.caption)
-                            .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                            .foregroundColor(Color.black)
                             .padding(.horizontal, 10)
                             .padding(.vertical, 6)
-                            .background(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.1))
+                            .background(Color(.systemGray6))
                             .cornerRadius(16)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 16)
-                                    .stroke(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.3), lineWidth: 1)
+                                    .stroke(Color(.systemGray4), lineWidth: 1)
                             )
                     }
                 }
@@ -245,12 +245,12 @@ struct NewCheckInView: View {
                             } label: {
                                 Image(systemName: "xmark.circle.fill")
                                     .font(.caption2)
-                                    .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                                    .foregroundColor(Color(.systemGray))
                             }
                         }
                         .padding(.horizontal, 10)
                         .padding(.vertical, 6)
-                        .background(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.2))
+                        .background(Color.black.opacity(0.08))
                         .cornerRadius(16)
                         .transition(.scale.combined(with: .opacity))
                     }
@@ -289,14 +289,14 @@ struct NewCheckInView: View {
     private var dateSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Toggle("补打卡（选择日期）", isOn: $useCustomDate)
-                .tint(Color(red: 0.76, green: 0.6, blue: 0.42))
+                .tint(Color.black)
                 .onChange(of: useCustomDate) { _, on in
                     data.createdAt = on ? customDate : nil
                 }
             if useCustomDate {
                 DatePicker("打卡日期", selection: $customDate, in: ...Date(), displayedComponents: [.date])
                     .datePickerStyle(.compact)
-                    .tint(Color(red: 0.76, green: 0.6, blue: 0.42))
+                    .tint(Color.black)
                     .environment(\.locale, Locale(identifier: "zh_CN"))
                     .onChange(of: customDate) { _, newDate in
                         data.createdAt = newDate

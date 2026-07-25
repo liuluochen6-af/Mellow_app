@@ -33,18 +33,18 @@ struct EditProfileView: View {
                                         .clipShape(Circle())
                                 } placeholder: {
                                     Circle()
-                                        .fill(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.3))
+                                        .fill(Color(.systemGray4))
                                         .frame(width: 80, height: 80)
                                         .overlay(ProgressView())
                                 }
                             } else {
                                 Circle()
-                                    .fill(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.3))
+                                    .fill(Color(.systemGray4))
                                     .frame(width: 80, height: 80)
                                     .overlay(
                                         Text(String((authService.currentUser?.nickname ?? "用").prefix(1)))
                                             .font(.title.bold())
-                                            .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                                            .foregroundColor(.white)
                                     )
                             }
                         }
@@ -71,7 +71,7 @@ struct EditProfileView: View {
                         Spacer()
                     }
                 }
-                .listRowBackground(Color(red: 0.76, green: 0.6, blue: 0.42))
+                .listRowBackground(Color.black)
                 .disabled(nickname.isEmpty || isSaving)
             }
         }

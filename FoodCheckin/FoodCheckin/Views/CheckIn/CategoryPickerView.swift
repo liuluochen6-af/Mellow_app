@@ -3,29 +3,25 @@ import SwiftUI
 struct CategoryPickerView: View {
     @Binding var selected: CheckInCategory
 
-    private let columns = Array(repeating: GridItem(.flexible()), count: 3)
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 8), count: 3)
 
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 16) {
+        LazyVGrid(columns: columns, spacing: 8) {
             ForEach(CheckInCategory.allCases, id: \.self) { category in
                 Button {
                     selected = category
                 } label: {
-                    VStack(spacing: 6) {
-                        Text(category.icon)
-                            .font(.title)
-                        Text(category.displayName)
-                            .font(.caption)
-                            .foregroundColor(selected == category ? .white : Color(red: 0.35, green: 0.25, blue: 0.15))
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(
-                        selected == category
-                            ? Color(red: 0.76, green: 0.6, blue: 0.42)
-                            : Color(.systemGray6)
-                    )
-                    .cornerRadius(12)
+                    Text(category.displayName)
+                        .font(.subheadline)
+                        .foregroundColor(selected == category ? .white : Color.primary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                        .background(
+                            selected == category
+                                ? Color.black
+                                : Color(UIColor.systemGray6)
+                        )
+                        .cornerRadius(8)
                 }
             }
         }

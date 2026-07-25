@@ -13,7 +13,7 @@ struct PinMarkerView: View {
                         .resizable()
                         .scaledToFill()
                 } placeholder: {
-                    Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.3)
+                    Color(.systemGray5)
                         .overlay(
                             Text(categoryIcon)
                                 .font(.system(size: isSelected ? 16 : 12))
@@ -24,7 +24,7 @@ struct PinMarkerView: View {
                 .overlay(
                     Circle()
                         .stroke(
-                            isSelected ? Color(red: 0.76, green: 0.6, blue: 0.42) : Color.white,
+                            isSelected ? Color.black : Color.white,
                             lineWidth: isSelected ? 3 : 2
                         )
                 )
@@ -43,7 +43,7 @@ struct PinMarkerView: View {
             // Pin triangle
             Image(systemName: "triangle.fill")
                 .font(.system(size: 6))
-                .foregroundColor(isSelected ? Color(red: 0.76, green: 0.6, blue: 0.42) : .white)
+                .foregroundColor(isSelected ? Color.black : .white)
                 .rotationEffect(.degrees(180))
                 .offset(y: -2)
         }

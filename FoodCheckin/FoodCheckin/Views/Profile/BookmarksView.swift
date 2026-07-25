@@ -29,7 +29,7 @@ struct BookmarksView: View {
                 .listStyle(.plain)
             }
         }
-        .background(Color(red: 0.98, green: 0.96, blue: 0.93).ignoresSafeArea())
+        .background(Color.white.ignoresSafeArea())
         .navigationTitle("我的收藏")
         .navigationBarTitleDisplayMode(.inline)
         .task {
@@ -57,7 +57,7 @@ struct BookmarkRow: View {
                     Text(item.category.categoryIcon)
                     Text(item.placeName)
                         .font(.subheadline.weight(.medium))
-                        .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                        .foregroundColor(.primary)
                         .lineLimit(1)
                 }
                 Text(item.address)

@@ -13,7 +13,7 @@ struct PhoneLoginView: View {
             Text("手机号登录")
                 .font(.title2)
                 .fontWeight(.bold)
-                .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                .foregroundColor(Color.black)
 
             VStack(spacing: 16) {
                 TextField("手机号", text: $phone)
@@ -37,7 +37,7 @@ struct PhoneLoginView: View {
                         .disabled(countdown > 0)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 12)
-                        .background(countdown > 0 ? Color.gray.opacity(0.3) : Color(red: 0.76, green: 0.6, blue: 0.42))
+                        .background(countdown > 0 ? Color.gray.opacity(0.3) : Color.black)
                         .foregroundColor(.white)
                         .cornerRadius(12)
                     }
@@ -61,9 +61,9 @@ struct PhoneLoginView: View {
                 Text(codeSent ? "登录" : "获取验证码")
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
-                    .background(phone.count >= 11 ? Color(red: 0.76, green: 0.6, blue: 0.42) : Color.gray.opacity(0.3))
+                    .background(phone.count >= 11 ? Color.black : Color.gray.opacity(0.3))
                     .foregroundColor(.white)
-                    .cornerRadius(25)
+                    .clipShape(Capsule())
             }
             .disabled(phone.count < 11)
             .padding(.horizontal)
@@ -71,7 +71,7 @@ struct PhoneLoginView: View {
             Spacer()
         }
         .padding(.top, 40)
-        .background(Color(red: 0.98, green: 0.96, blue: 0.93).ignoresSafeArea())
+        .background(Color.white.ignoresSafeArea())
         .onDisappear { timer?.invalidate() }
     }
 

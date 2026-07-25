@@ -31,7 +31,7 @@ struct PhotoGalleryView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text(dayLabel(group.day))
                                     .font(.subheadline.weight(.semibold))
-                                    .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                                    .foregroundColor(Color.primary)
                                     .padding(.horizontal, 4)
 
                                 LazyVGrid(columns: columns, spacing: 4) {
@@ -45,7 +45,7 @@ struct PhotoGalleryView: View {
                     .padding(16)
                 }
             }
-            .background(Color(red: 0.98, green: 0.96, blue: 0.93))
+            .background(Color.white)
             .navigationTitle("照片墙")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -56,7 +56,7 @@ struct PhotoGalleryView: View {
                         HStack(spacing: 4) {
                             Text(monthLabel)
                                 .font(.headline)
-                                .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                                .foregroundColor(Color.primary)
                             Image(systemName: "chevron.down")
                                 .font(.caption)
                                 .foregroundColor(.secondary)

@@ -10,7 +10,7 @@ struct PinDetailCard: View {
                     .resizable()
                     .scaledToFill()
             } placeholder: {
-                Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.3)
+                Color(.systemGray5)
             }
             .frame(width: 60, height: 60)
             .clipped()
@@ -19,7 +19,7 @@ struct PinDetailCard: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(pin.placeName)
                     .font(.subheadline.bold())
-                    .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                    .foregroundColor(Color.primary)
                     .lineLimit(1)
 
                 HStack(spacing: 6) {
@@ -37,9 +37,9 @@ struct PinDetailCard: View {
                 .font(.caption)
         }
         .padding(12)
-        .background(.ultraThinMaterial)
+        .background(Color.white)
         .cornerRadius(16)
-        .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
+        .shadow(color: .black.opacity(0.06), radius: 4, y: 2)
     }
 
     private var categoryIcon: String { pin.category.categoryIcon }

@@ -21,13 +21,13 @@ struct RatingView: View {
                             .font(.title2)
                         Text(level.label)
                             .font(.caption)
-                            .foregroundColor(rating == level.value ? .white : Color(red: 0.35, green: 0.25, blue: 0.15))
+                            .foregroundColor(rating == level.value ? .white : Color.primary)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 10)
                     .background(
                         rating == level.value
-                            ? Color(red: 0.76, green: 0.6, blue: 0.42)
+                            ? Color.black
                             : Color(.systemGray6)
                     )
                     .cornerRadius(12)

@@ -43,7 +43,7 @@ struct ContentView: View {
                         Text("我的")
                     }
             }
-            .tint(Color(red: 0.76, green: 0.6, blue: 0.42))
+            .tint(.black)
 
             Button {
                 showNewCheckIn = true
@@ -52,9 +52,9 @@ struct ContentView: View {
                     .font(.title2.bold())
                     .foregroundColor(.white)
                     .frame(width: 56, height: 56)
-                    .background(Color(red: 0.76, green: 0.6, blue: 0.42))
+                    .background(Color.black)
                     .clipShape(Circle())
-                    .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
+                    .shadow(color: .black.opacity(0.06), radius: 4, y: 2)
             }
             .offset(y: -20)
         }

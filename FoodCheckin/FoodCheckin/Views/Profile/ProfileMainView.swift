@@ -16,7 +16,7 @@ struct ProfileMainView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(authService.currentUser?.nickname ?? "用户")
                                 .font(.headline)
-                                .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                                .foregroundColor(.black)
                             Text(authService.currentUser?.phone ?? "")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
@@ -75,7 +75,7 @@ struct ProfileMainView: View {
                 Text("删除后所有数据将无法恢复，确定要删除账号吗？")
             }
         }
-        .tint(Color(red: 0.76, green: 0.6, blue: 0.42))
+        .tint(.black)
     }
 
     @ViewBuilder
@@ -95,11 +95,11 @@ struct ProfileMainView: View {
 
     private var avatarPlaceholder: some View {
         Circle()
-            .fill(Color(red: 0.76, green: 0.6, blue: 0.42).opacity(0.3))
+            .fill(Color(.systemGray4))
             .overlay(
                 Text(String((authService.currentUser?.nickname ?? "用").prefix(1)))
                     .font(.title2.bold())
-                    .foregroundColor(Color(red: 0.76, green: 0.6, blue: 0.42))
+                    .foregroundColor(.white)
             )
     }
 }

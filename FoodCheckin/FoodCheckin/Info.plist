@@ -25,6 +25,8 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>需要使用相机拍摄打卡照片</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string></string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>需要获取您的位置以记录打卡地点</string>
 	<key>NSPhotoLibraryUsageDescription</key>

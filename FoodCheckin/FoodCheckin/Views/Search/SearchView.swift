@@ -28,7 +28,7 @@ struct SearchView: View {
                             .foregroundColor(.white)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(Color(red: 0.76, green: 0.6, blue: 0.42))
+                            .background(Color.black)
                             .cornerRadius(8)
                     }
                     .disabled(query.trimmingCharacters(in: .whitespaces).isEmpty)
@@ -82,7 +82,7 @@ struct SearchView: View {
                     Spacer()
                 }
             }
-            .background(Color(red: 0.98, green: 0.96, blue: 0.93).ignoresSafeArea())
+            .background(Color.white.ignoresSafeArea())
             .navigationTitle("搜索")
             .navigationBarTitleDisplayMode(.inline)
         }
@@ -130,7 +130,7 @@ struct SearchResultRow: View {
                     Text(checkIn.category.categoryIcon)
                     Text(checkIn.placeName)
                         .font(.subheadline.weight(.medium))
-                        .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                        .foregroundColor(.primary)
                         .lineLimit(1)
                 }
                 Text(checkIn.address)
