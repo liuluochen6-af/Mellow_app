@@ -16,11 +16,16 @@ struct PhoneLoginView: View {
                 .foregroundColor(Color.black)
 
             VStack(spacing: 16) {
-                TextField("手机号", text: $phone)
+                TextField("手机号或 +国家区号", text: $phone)
                     .keyboardType(.phonePad)
                     .padding()
                     .background(Color.white)
                     .cornerRadius(12)
+
+                Text("中国大陆可直接输入 11 位手机号；国外号码请包含国家区号，例如 +61 412 345 678")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
                 if codeSent {
                     HStack {
@@ -61,11 +66,11 @@ struct PhoneLoginView: View {
                 Text(codeSent ? "登录" : "获取验证码")
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
-                    .background(phone.count >= 11 ? Color.black : Color.gray.opacity(0.3))
+                    .background(isValidPhoneInput ? Color.black : Color.gray.opacity(0.3))
                     .foregroundColor(.white)
                     .clipShape(Capsule())
             }
-            .disabled(phone.count < 11)
+            .disabled(!isValidPhoneInput)
             .padding(.horizontal)
 
             Spacer()
@@ -73,6 +78,14 @@ struct PhoneLoginView: View {
         .padding(.top, 40)
         .background(Color.white.ignoresSafeArea())
         .onDisappear { timer?.invalidate() }
+    }
+
+    private var isValidPhoneInput: Bool {
+        let compact = phone.filter { $0.isNumber || $0 == "+" }
+        if compact.hasPrefix("+") {
+            return (9 ... 16).contains(compact.count)
+        }
+        return compact.count == 11
     }
 
     private func sendCode() {

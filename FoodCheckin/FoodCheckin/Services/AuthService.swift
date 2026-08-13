@@ -12,7 +12,9 @@ struct PhoneLoginBody: Encodable {
 }
 
 struct AppleLoginBody: Encodable {
-    let apple_id: String
+    let identity_token: String
+    let authorization_code: String
+    let nonce: String
     let nickname: String
 }
 
@@ -65,18 +67,34 @@ class AuthService: ObservableObject {
         }
     }
 
-    func appleLogin(appleID: String, nickname: String) async {
+    func appleLogin(
+        identityToken: String,
+        authorizationCode: String,
+        nonce: String,
+        nickname: String
+    ) async {
         errorMessage = nil
+        guard APIClient.shared.isSecureTransport else {
+            errorMessage = "Apple 登录需要服务器启用 HTTPS"
+            return
+        }
         do {
-            let body = AppleLoginBody(apple_id: appleID, nickname: nickname)
+            let body = AppleLoginBody(
+                identity_token: identityToken,
+                authorization_code: authorizationCode,
+                nonce: nonce,
+                nickname: nickname
+            )
             let data = try await APIClient.shared.post("/api/auth/apple-login", body: body)
             let decoder = JSONDecoder()
             let response = try decoder.decode(LoginResponse.self, from: data)
             KeychainHelper.save(token: response.token)
             currentUser = response.user
             isLoggedIn = true
+        } catch let error as APIError {
+            errorMessage = error.errorDescription
         } catch {
-            errorMessage = "Apple 登录失败"
+            errorMessage = "Apple 登录失败，请重试"
         }
     }
 

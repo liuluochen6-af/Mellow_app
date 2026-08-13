@@ -93,6 +93,14 @@ struct LocationSearchView: View {
     private func selectMapItem(_ item: MKMapItem) {
         let coordinate = item.placemark.coordinate
         let placemark = item.placemark
+        let country = placemark.country ?? ""
+        let province = placemark.administrativeArea ?? ""
+        let city = CityRegionNormalizer.cityName(
+            country: country,
+            province: province,
+            locality: placemark.locality ?? "",
+            coordinate: coordinate
+        )
 
         selectedPlace = SelectedPlace(
             name: item.name ?? "未知地点",
@@ -100,9 +108,9 @@ struct LocationSearchView: View {
             address: placemark.title ?? "",
             latitude: coordinate.latitude,
             longitude: coordinate.longitude,
-            country: placemark.country ?? "",
-            province: placemark.administrativeArea ?? "",
-            city: placemark.locality ?? "",
+            country: country,
+            province: province,
+            city: city,
             district: placemark.subLocality ?? ""
         )
         dismiss()

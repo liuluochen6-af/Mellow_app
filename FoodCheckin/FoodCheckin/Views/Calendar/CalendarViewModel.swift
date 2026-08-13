@@ -10,6 +10,7 @@ class CalendarViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var selectedDay: Int? = nil
     @Published var stickers: [UUID: UIImage] = [:]
+    private var stickerTask: Task<Void, Never>?
 
     private var calendar: Calendar {
         var cal = Calendar(identifier: .gregorian)
@@ -62,20 +63,38 @@ class CalendarViewModel: ObservableObject {
     }
 
     func loadMonth() async {
-        isLoading = true
+        let year = currentYear
+        let month = currentMonth
+        let path = "/api/checkins/calendar?year=\(year)&month=\(month)"
+        stickerTask?.cancel()
+
+        var showedCache = false
+        if let cached = await APIClient.shared.cachedData(for: path),
+           let response = try? JSONDecoder().decode(CheckInListResponse.self, from: cached),
+           year == currentYear, month == currentMonth {
+            monthCheckIns = response.items
+            showedCache = true
+            scheduleStickerLoad(for: response.items)
+        }
+
+        isLoading = !showedCache
         defer { isLoading = false }
 
         do {
-            let data = try await APIClient.shared.get("/api/checkins/calendar?year=\(currentYear)&month=\(currentMonth)")
+            let data = try await APIClient.shared.get(path)
             let response = try JSONDecoder().decode(CheckInListResponse.self, from: data)
+            guard year == currentYear, month == currentMonth else { return }
             monthCheckIns = response.items
-            await loadStickers(for: response.items)
+            await APIClient.shared.cache(data, for: path)
+            scheduleStickerLoad(for: response.items)
         } catch {
-            monthCheckIns = []
+            if !showedCache {
+                monthCheckIns = []
+            }
         }
     }
 
-    func loadStickers(for checkIns: [CheckInResponse]) async {
+    private func scheduleStickerLoad(for checkIns: [CheckInResponse]) {
         guard #available(iOS 17.0, *) else { return }
 
         // Group by day, take first check-in per day to avoid redundant processing
@@ -91,27 +110,19 @@ class CalendarViewModel: ObservableObject {
         }
 
         let baseURL = APIClient.shared.baseURL
-
-        await withTaskGroup(of: (UUID, UIImage?).self) { group in
+        stickerTask = Task(priority: .utility) { [weak self] in
+            // Process serially to avoid several full Vision pipelines peaking
+            // in memory at the same time. Cached stickers return immediately.
             for checkIn in toProcess {
-                let checkInId = checkIn.id
-                let photoUrl = checkIn.photoUrl
-                group.addTask {
-                    let urlString = baseURL + photoUrl
-                    guard let url = URL(string: urlString),
-                          let (data, _) = try? await URLSession.shared.data(from: url),
-                          let image = UIImage(data: data) else {
-                        return (checkInId, nil)
-                    }
-
-                    let sticker = await StickerService.shared.extractSubject(from: image, cacheKey: photoUrl)
-                    return (checkInId, sticker)
-                }
-            }
-
-            for await (id, image) in group {
+                guard !Task.isCancelled,
+                      let url = URL(string: baseURL + checkIn.photoUrl) else { return }
+                let image = await StickerService.shared.sticker(
+                    from: url,
+                    cacheKey: checkIn.photoUrl
+                )
+                guard !Task.isCancelled else { return }
                 if let image {
-                    stickers[id] = image
+                    self?.stickers[checkIn.id] = image
                 }
             }
         }

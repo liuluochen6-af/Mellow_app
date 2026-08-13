@@ -9,9 +9,16 @@ targets:
     platform: iOS
     sources:
       - FoodCheckin
+    entitlements:
+      path: FoodCheckin/FoodCheckin.entitlements
+      properties:
+        com.apple.developer.applesignin:
+          - Default
     info:
       path: FoodCheckin/Info.plist
       properties:
+        CFBundleDisplayName: Mellow
+        CFBundleName: Mellow
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
         UILaunchScreen: {}

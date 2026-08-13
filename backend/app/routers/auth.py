@@ -14,8 +14,16 @@ from app.schemas.auth import (
     UserResponse,
     UpdateProfileRequest,
 )
-from app.services.sms import send_verification_code, verify_code, get_last_send_time
+from app.services.sms import (
+    SMSDeliveryError,
+    get_last_send_time,
+    normalize_phone,
+    send_verification_code,
+    verify_code,
+)
+from app.config import settings
 from app.services.auth import get_or_create_user_by_phone, get_or_create_user_by_apple_id
+from app.services.apple_auth import AppleAuthError, verify_apple_identity_token
 from app.services.image import compress_and_save_image
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -23,20 +31,35 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 @router.post("/send-code")
 async def send_code(req: SendCodeRequest):
-    last_send = get_last_send_time(req.phone)
+    try:
+        phone = normalize_phone(req.phone)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    last_send = get_last_send_time(phone)
     if last_send and time.time() - last_send < 60:
         raise HTTPException(status_code=429, detail="请等待60秒后再发送")
 
-    code = await send_verification_code(req.phone)
-    return {"message": "ok", "dev_code": code}
+    try:
+        code, is_dev = await send_verification_code(phone)
+    except SMSDeliveryError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    response = {"message": "ok"}
+    if is_dev and settings.sms_debug_return_code:
+        response["dev_code"] = code
+    return response
 
 
 @router.post("/phone-login", response_model=LoginResponse)
 async def phone_login(req: PhoneLoginRequest, db: AsyncSession = Depends(get_db)):
-    if not verify_code(req.phone, req.code):
+    try:
+        phone = normalize_phone(req.phone)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if not verify_code(phone, req.code):
         raise HTTPException(status_code=400, detail="验证码错误或已过期")
 
-    user = await get_or_create_user_by_phone(db, req.phone)
+    user = await get_or_create_user_by_phone(db, phone)
     return LoginResponse(
         token=user.token,
         user=UserResponse(
@@ -51,7 +74,12 @@ async def phone_login(req: PhoneLoginRequest, db: AsyncSession = Depends(get_db)
 
 @router.post("/apple-login", response_model=LoginResponse)
 async def apple_login(req: AppleLoginRequest, db: AsyncSession = Depends(get_db)):
-    user = await get_or_create_user_by_apple_id(db, req.apple_id, req.nickname)
+    try:
+        apple_id = await verify_apple_identity_token(req.identity_token, req.nonce)
+    except AppleAuthError as exc:
+        raise HTTPException(status_code=401, detail=str(exc)) from exc
+
+    user = await get_or_create_user_by_apple_id(db, apple_id, req.nickname)
     return LoginResponse(
         token=user.token,
         user=UserResponse(

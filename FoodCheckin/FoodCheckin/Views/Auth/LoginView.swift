@@ -1,9 +1,12 @@
 import SwiftUI
 import AuthenticationServices
+import CryptoKit
+import Security
 
 struct LoginView: View {
     @EnvironmentObject var authService: AuthService
     @State private var showPhoneLogin = false
+    @State private var appleNonce: String?
 
     var body: some View {
         NavigationStack {
@@ -15,7 +18,7 @@ struct LoginView: View {
                         .font(.system(size: 60))
                         .foregroundColor(.black)
 
-                    Text("吃喝玩乐打卡")
+                    Text("Mellow")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .foregroundColor(.black)
@@ -29,7 +32,10 @@ struct LoginView: View {
 
                 VStack(spacing: 16) {
                     SignInWithAppleButton(.signIn) { request in
-                        request.requestedScopes = [.fullName]
+                        let nonce = randomNonceString()
+                        appleNonce = nonce
+                        request.requestedScopes = [.fullName, .email]
+                        request.nonce = sha256(nonce)
                     } onCompletion: { result in
                         handleAppleLogin(result)
                     }
@@ -71,18 +77,55 @@ struct LoginView: View {
     private func handleAppleLogin(_ result: Result<ASAuthorization, Error>) {
         switch result {
         case .success(let auth):
-            guard let credential = auth.credential as? ASAuthorizationAppleIDCredential else { return }
-            let userID = credential.user
+            guard let credential = auth.credential as? ASAuthorizationAppleIDCredential,
+                  let identityTokenData = credential.identityToken,
+                  let identityToken = String(data: identityTokenData, encoding: .utf8),
+                  let authorizationCodeData = credential.authorizationCode,
+                  let authorizationCode = String(data: authorizationCodeData, encoding: .utf8),
+                  let nonce = appleNonce else {
+                authService.errorMessage = "Apple 登录凭证不完整，请重试"
+                return
+            }
             let fullName = credential.fullName
             let nickname = [fullName?.givenName, fullName?.familyName]
                 .compactMap { $0 }
                 .joined(separator: " ")
 
             Task {
-                await authService.appleLogin(appleID: userID, nickname: nickname)
+                await authService.appleLogin(
+                    identityToken: identityToken,
+                    authorizationCode: authorizationCode,
+                    nonce: nonce,
+                    nickname: nickname
+                )
             }
         case .failure:
             authService.errorMessage = "Apple 登录已取消"
         }
+    }
+
+    private func sha256(_ input: String) -> String {
+        SHA256.hash(data: Data(input.utf8))
+            .map { String(format: "%02x", $0) }
+            .joined()
+    }
+
+    private func randomNonceString(length: Int = 32) -> String {
+        precondition(length > 0)
+        let characters = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
+        var result = ""
+        var remainingLength = length
+
+        while remainingLength > 0 {
+            var random: UInt8 = 0
+            guard SecRandomCopyBytes(kSecRandomDefault, 1, &random) == errSecSuccess else {
+                fatalError("Unable to generate a secure nonce")
+            }
+            if Int(random) < characters.count {
+                result.append(characters[Int(random)])
+                remainingLength -= 1
+            }
+        }
+        return result
     }
 }

@@ -27,43 +27,47 @@ struct ProfileMainView: View {
 
                 Section {
                     NavigationLink(destination: EditProfileView()) {
-                        Label("编辑资料", systemImage: "pencil")
+                        profileNavigationLabel("编辑资料", systemImage: "pencil")
                     }
+                    .tint(.black)
                     NavigationLink(destination: FeedView()) {
-                        Label("好友动态", systemImage: "bubble.left.and.bubble.right")
+                        profileNavigationLabel("好友动态", systemImage: "bubble.left.and.bubble.right")
                     }
+                    .tint(.black)
                     NavigationLink(destination: BookmarksView()) {
-                        Label("我的收藏", systemImage: "bookmark")
+                        profileNavigationLabel("我的收藏", systemImage: "bookmark")
                     }
+                    .tint(.black)
                     NavigationLink(destination: SearchView()) {
-                        Label("搜索记录", systemImage: "magnifyingglass")
+                        profileNavigationLabel("搜索记录", systemImage: "magnifyingglass")
                     }
+                    .tint(.black)
                     NavigationLink(destination: FriendsListView()) {
-                        Label("好友管理", systemImage: "person.2")
+                        profileNavigationLabel("好友管理", systemImage: "person.2")
                     }
+                    .tint(.black)
                     NavigationLink(destination: DraftsView()) {
-                        Label("草稿箱", systemImage: "doc")
+                        profileNavigationLabel("草稿箱", systemImage: "doc")
                     }
+                    .tint(.black)
                 }
 
                 Section {
                     NavigationLink(destination: AboutView()) {
-                        Label("关于", systemImage: "info.circle")
+                        profileNavigationLabel("关于", systemImage: "info.circle")
                     }
+                    .tint(.black)
                 }
 
                 Section {
-                    Button("退出登录") {
-                        authService.logout()
-                    }
-                    .foregroundColor(.orange)
-
                     Button("删除账号") {
                         showDeleteConfirm = true
                     }
                     .foregroundColor(.red)
                 }
             }
+            .tint(.black)
+            .accentColor(.black)
             .navigationTitle("我的")
             .task { await authService.loadProfile() }
             .alert("确认删除", isPresented: $showDeleteConfirm) {
@@ -76,6 +80,17 @@ struct ProfileMainView: View {
             }
         }
         .tint(.black)
+        .accentColor(.black)
+    }
+
+    private func profileNavigationLabel(_ title: String, systemImage: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: systemImage)
+                .foregroundStyle(Color.black)
+                .frame(width: 28)
+            Text(title)
+                .foregroundStyle(Color.black)
+        }
     }
 
     @ViewBuilder

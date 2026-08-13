@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import uuid
 from datetime import datetime
 
@@ -13,8 +13,10 @@ class PhoneLoginRequest(BaseModel):
 
 
 class AppleLoginRequest(BaseModel):
-    apple_id: str
-    nickname: str = ""
+    identity_token: str = Field(min_length=20)
+    authorization_code: str = Field(min_length=1)
+    nonce: str = Field(min_length=16, max_length=128)
+    nickname: str = Field(default="", max_length=100)
 
 
 class UserResponse(BaseModel):

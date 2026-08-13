@@ -8,8 +8,7 @@ struct SearchView: View {
     @State private var hasSearched = false
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
+        VStack(spacing: 0) {
                 HStack(spacing: 10) {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.secondary)
@@ -81,11 +80,11 @@ struct SearchView: View {
                     }
                     Spacer()
                 }
-            }
-            .background(Color.white.ignoresSafeArea())
-            .navigationTitle("搜索")
-            .navigationBarTitleDisplayMode(.inline)
         }
+        .background(Color.white.ignoresSafeArea())
+        .navigationTitle("搜索")
+        .navigationBarTitleDisplayMode(.inline)
+        .tint(.black)
     }
 
     private func doSearch() {

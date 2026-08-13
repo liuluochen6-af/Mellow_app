@@ -12,11 +12,19 @@ from app.models.user import User
 from app.models.checkin import CheckIn
 from app.schemas.checkin import CheckInCreate, CheckInUpdate, CheckInResponse, CheckInListResponse
 from app.services.image import compress_and_save_image
+from app.services.city import normalize_city
 
 router = APIRouter(prefix="/api/checkins", tags=["checkins"])
 
 
 def _checkin_to_response(checkin: CheckIn) -> CheckInResponse:
+    city = normalize_city(
+        country=checkin.country,
+        province=checkin.province,
+        city=checkin.city,
+        latitude=float(checkin.latitude),
+        longitude=float(checkin.longitude),
+    )
     return CheckInResponse(
         id=checkin.id,
         user_id=checkin.user_id,
@@ -28,7 +36,7 @@ def _checkin_to_response(checkin: CheckIn) -> CheckInResponse:
         longitude=float(checkin.longitude),
         country=checkin.country,
         province=checkin.province,
-        city=checkin.city,
+        city=city,
         district=checkin.district,
         category=checkin.category,
         rating=checkin.rating,
@@ -62,6 +70,13 @@ async def create_checkin(
         raise HTTPException(status_code=400, detail="照片不能为空")
 
     photo_path = compress_and_save_image(file_bytes, photo.filename or "photo.jpg")
+    canonical_city = normalize_city(
+        country=parsed.country,
+        province=parsed.province,
+        city=parsed.city,
+        latitude=parsed.latitude,
+        longitude=parsed.longitude,
+    )
 
     checkin_kwargs = dict(
         user_id=current_user.id,
@@ -73,7 +88,7 @@ async def create_checkin(
         longitude=parsed.longitude,
         country=parsed.country,
         province=parsed.province,
-        city=parsed.city,
+        city=canonical_city,
         district=parsed.district,
         category=parsed.category,
         rating=parsed.rating,
@@ -221,6 +236,8 @@ async def get_map_pins(
             CheckIn.photo_path,
             CheckIn.created_at,
             CheckIn.city,
+            CheckIn.country,
+            CheckIn.province,
         )
         .where(CheckIn.user_id == current_user.id)
         .order_by(desc(CheckIn.created_at))
@@ -240,7 +257,13 @@ async def get_map_pins(
             "rating": row.rating,
             "photo_url": row.photo_path,
             "created_at": row.created_at.isoformat(),
-            "city": row.city or "",
+            "city": normalize_city(
+                country=row.country or "",
+                province=row.province or "",
+                city=row.city or "",
+                latitude=float(row.latitude),
+                longitude=float(row.longitude),
+            ),
         })
 
     return {"pins": pins}
@@ -251,7 +274,7 @@ async def get_visited_regions(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    from sqlalchemy import distinct, func as sqlfunc
+    from sqlalchemy import distinct
 
     countries_q = select(distinct(CheckIn.country)).where(
         CheckIn.user_id == current_user.id
@@ -259,16 +282,29 @@ async def get_visited_regions(
     provinces_q = select(distinct(CheckIn.province)).where(
         CheckIn.user_id == current_user.id
     ).where(CheckIn.province != "")
-    cities_q = select(distinct(CheckIn.city)).where(
-        CheckIn.user_id == current_user.id
-    ).where(CheckIn.city != "")
+    cities_q = select(
+        CheckIn.country,
+        CheckIn.province,
+        CheckIn.city,
+        CheckIn.latitude,
+        CheckIn.longitude,
+    ).where(CheckIn.user_id == current_user.id).where(CheckIn.city != "")
     districts_q = select(distinct(CheckIn.district)).where(
         CheckIn.user_id == current_user.id
     ).where(CheckIn.district != "")
 
     countries = [row[0] for row in (await db.execute(countries_q)).all()]
     provinces = [row[0] for row in (await db.execute(provinces_q)).all()]
-    cities = [row[0] for row in (await db.execute(cities_q)).all()]
+    cities = sorted({
+        normalize_city(
+            country=row.country or "",
+            province=row.province or "",
+            city=row.city or "",
+            latitude=float(row.latitude),
+            longitude=float(row.longitude),
+        )
+        for row in (await db.execute(cities_q)).all()
+    } - {""})
     districts = [row[0] for row in (await db.execute(districts_q)).all()]
 
     return {

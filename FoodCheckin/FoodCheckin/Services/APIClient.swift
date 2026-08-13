@@ -1,4 +1,31 @@
 import Foundation
+import CryptoKit
+
+actor ResponseDataCache {
+    static let shared = ResponseDataCache()
+
+    private let directory: URL
+
+    private init() {
+        let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+        directory = caches.appendingPathComponent("APIResponses", isDirectory: true)
+        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+    }
+
+    func data(for key: String) -> Data? {
+        try? Data(contentsOf: fileURL(for: key), options: .mappedIfSafe)
+    }
+
+    func store(_ data: Data, for key: String) {
+        try? data.write(to: fileURL(for: key), options: .atomic)
+    }
+
+    private func fileURL(for key: String) -> URL {
+        let digest = SHA256.hash(data: Data(key.utf8))
+        let name = digest.map { String(format: "%02x", $0) }.joined()
+        return directory.appendingPathComponent(name).appendingPathExtension("json")
+    }
+}
 
 enum APIError: Error, LocalizedError {
     case invalidURL
@@ -22,10 +49,30 @@ class APIClient {
     #if targetEnvironment(simulator)
     let baseURL = "http://localhost:8000"
     #else
-    let baseURL = "http://8.137.156.254"
+    let baseURL = "https://8.137.156.254"
     #endif
 
     private init() {}
+
+    var isSecureTransport: Bool {
+        #if targetEnvironment(simulator)
+        return true
+        #else
+        return URL(string: baseURL)?.scheme?.lowercased() == "https"
+        #endif
+    }
+
+    private func cacheKey(for path: String) -> String {
+        "\(KeychainHelper.getToken() ?? "guest"):\(path)"
+    }
+
+    func cachedData(for path: String) async -> Data? {
+        await ResponseDataCache.shared.data(for: cacheKey(for: path))
+    }
+
+    func cache(_ data: Data, for path: String) async {
+        await ResponseDataCache.shared.store(data, for: cacheKey(for: path))
+    }
 
     func post(_ path: String, body: Encodable) async throws -> Data {
         guard let url = URL(string: baseURL + path) else { throw APIError.invalidURL }

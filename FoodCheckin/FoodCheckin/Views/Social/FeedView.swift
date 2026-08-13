@@ -5,50 +5,50 @@ struct FeedView: View {
     @State private var showAddFriend = false
 
     var body: some View {
-        NavigationStack {
-            Group {
-                if socialService.friends.isEmpty && socialService.feedItems.isEmpty && !socialService.isLoading {
-                    emptyStateView
-                } else {
-                    feedList
-                }
+        Group {
+            if socialService.friends.isEmpty && socialService.feedItems.isEmpty && !socialService.isLoading {
+                emptyStateView
+            } else {
+                feedList
             }
-            .background(Color(UIColor.systemGroupedBackground).ignoresSafeArea())
-            .navigationTitle("动态")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    HStack(spacing: 12) {
-                        NavigationLink(destination: FriendRequestsView(socialService: socialService)) {
-                            ZStack(alignment: .topTrailing) {
-                                Image(systemName: "bell")
-                                if socialService.unreadCount > 0 {
-                                    Text("\(socialService.unreadCount)")
-                                        .font(.system(size: 9, weight: .bold))
-                                        .foregroundColor(.white)
-                                        .padding(3)
-                                        .background(Color.red)
-                                        .clipShape(Circle())
-                                        .offset(x: 6, y: -6)
-                                }
+        }
+        .background(Color(UIColor.systemGroupedBackground).ignoresSafeArea())
+        .navigationTitle("动态")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                HStack(spacing: 12) {
+                    NavigationLink(destination: FriendRequestsView(socialService: socialService)) {
+                        ZStack(alignment: .topTrailing) {
+                            Image(systemName: "bell")
+                            if socialService.unreadCount > 0 {
+                                Text("\(socialService.unreadCount)")
+                                    .font(.system(size: 9, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .padding(3)
+                                    .background(Color.red)
+                                    .clipShape(Circle())
+                                    .offset(x: 6, y: -6)
                             }
                         }
-                        Button { showAddFriend = true } label: {
-                            Image(systemName: "person.badge.plus")
-                        }
+                    }
+                    Button { showAddFriend = true } label: {
+                        Image(systemName: "person.badge.plus")
                     }
                 }
             }
-            .sheet(isPresented: $showAddFriend) {
-                AddFriendView(socialService: socialService)
-            }
-            .task {
-                await socialService.loadFriends()
-                await socialService.loadFeed(refresh: true)
-                await socialService.loadUnreadCount()
-                _ = await socialService.loadBookmarks()
-            }
         }
+        .sheet(isPresented: $showAddFriend) {
+            AddFriendView(socialService: socialService)
+        }
+        .task {
+            async let friends: () = socialService.loadFriends()
+            async let feed: () = socialService.loadFeed(refresh: true)
+            async let unread: () = socialService.loadUnreadCount()
+            async let bookmarks: [BookmarkItem] = socialService.loadBookmarks()
+            _ = await (friends, feed, unread, bookmarks)
+        }
+        .tint(.black)
     }
 
     private var emptyStateView: some View {

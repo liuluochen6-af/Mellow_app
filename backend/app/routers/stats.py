@@ -8,6 +8,7 @@ from app.database import get_db
 from app.dependencies import get_current_user
 from app.models.user import User
 from app.models.checkin import CheckIn
+from app.services.city import normalize_city
 
 router = APIRouter(prefix="/api/stats", tags=["stats"])
 
@@ -41,11 +42,25 @@ async def get_overview(
         )
     )).scalar() or 0
 
-    cities = (await db.execute(
-        select(func.count(distinct(CheckIn.city))).where(
-            *filters, CheckIn.city != ""
+    city_rows = (await db.execute(
+        select(
+            CheckIn.country,
+            CheckIn.province,
+            CheckIn.city,
+            CheckIn.latitude,
+            CheckIn.longitude,
+        ).where(*filters, CheckIn.city != "")
+    )).all()
+    cities = len({
+        normalize_city(
+            country=row.country or "",
+            province=row.province or "",
+            city=row.city or "",
+            latitude=float(row.latitude),
+            longitude=float(row.longitude),
         )
-    )).scalar() or 0
+        for row in city_rows
+    } - {""})
 
     districts = (await db.execute(
         select(func.count(distinct(CheckIn.district))).where(

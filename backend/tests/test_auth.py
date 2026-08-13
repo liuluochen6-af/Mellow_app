@@ -1,5 +1,7 @@
 import pytest
 
+import app.routers.auth as auth_router
+from app.services.apple_auth import AppleAuthError
 from app.services.sms import _code_store
 
 
@@ -46,8 +48,38 @@ async def test_phone_login_wrong_code(client):
 
 
 @pytest.mark.asyncio
-async def test_apple_login(client):
-    response = await client.post("/api/auth/apple-login", json={"apple_id": "apple_test_123", "nickname": "Test"})
+async def test_international_phone_registration(client):
+    phone = "+61 412 345 678"
+    response = await client.post("/api/auth/send-code", json={"phone": phone})
+    assert response.status_code == 200
+
+    normalized = "+61412345678"
+    code = _code_store[normalized][0]
+    response = await client.post(
+        "/api/auth/phone-login",
+        json={"phone": phone, "code": code},
+    )
+    assert response.status_code == 200
+    assert response.json()["user"]["phone"] == normalized
+
+
+@pytest.mark.asyncio
+async def test_apple_login(client, monkeypatch):
+    async def verify_token(identity_token, nonce):
+        assert identity_token == "identity-token-value-long-enough"
+        assert nonce == "nonce-value-long-enough"
+        return "apple_test_123"
+
+    monkeypatch.setattr(auth_router, "verify_apple_identity_token", verify_token)
+    response = await client.post(
+        "/api/auth/apple-login",
+        json={
+            "identity_token": "identity-token-value-long-enough",
+            "authorization_code": "authorization-code",
+            "nonce": "nonce-value-long-enough",
+            "nickname": "Test",
+        },
+    )
     assert response.status_code == 200
     data = response.json()
     assert "token" in data
@@ -55,11 +87,40 @@ async def test_apple_login(client):
 
 
 @pytest.mark.asyncio
-async def test_apple_login_existing_user(client):
-    await client.post("/api/auth/apple-login", json={"apple_id": "apple_repeat", "nickname": "First"})
-    response = await client.post("/api/auth/apple-login", json={"apple_id": "apple_repeat", "nickname": "Second"})
+async def test_apple_login_existing_user(client, monkeypatch):
+    async def verify_token(_identity_token, _nonce):
+        return "apple_repeat"
+
+    monkeypatch.setattr(auth_router, "verify_apple_identity_token", verify_token)
+    payload = {
+        "identity_token": "identity-token-value-long-enough",
+        "authorization_code": "authorization-code",
+        "nonce": "nonce-value-long-enough",
+        "nickname": "First",
+    }
+    await client.post("/api/auth/apple-login", json=payload)
+    payload["nickname"] = "Second"
+    response = await client.post("/api/auth/apple-login", json=payload)
     assert response.status_code == 200
     assert response.json()["user"]["nickname"] == "First"
+
+
+@pytest.mark.asyncio
+async def test_apple_login_rejects_invalid_token(client, monkeypatch):
+    async def reject_token(_identity_token, _nonce):
+        raise AppleAuthError("Apple 身份令牌无效或已过期")
+
+    monkeypatch.setattr(auth_router, "verify_apple_identity_token", reject_token)
+    response = await client.post(
+        "/api/auth/apple-login",
+        json={
+            "identity_token": "invalid-identity-token-long-enough",
+            "authorization_code": "authorization-code",
+            "nonce": "nonce-value-long-enough",
+            "nickname": "Test",
+        },
+    )
+    assert response.status_code == 401
 
 
 @pytest.mark.asyncio

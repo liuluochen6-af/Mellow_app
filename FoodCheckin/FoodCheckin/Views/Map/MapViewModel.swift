@@ -132,16 +132,22 @@ class MapViewModel: ObservableObject {
             let data = try await APIClient.shared.get("/api/checkins/map-pins")
             let response = try JSONDecoder().decode(MapPinsResponse.self, from: data)
             pins = response.pins.map { pin in
-                MapPin(
+                let coordinate = CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude)
+                return MapPin(
                     id: pin.id,
                     placeName: pin.placeName,
                     placeId: pin.placeId,
-                    coordinate: CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude),
+                    coordinate: coordinate,
                     category: pin.category,
                     rating: pin.rating,
                     photoUrl: pin.photoUrl,
                     createdAt: pin.createdAt,
-                    city: pin.city ?? ""
+                    city: CityRegionNormalizer.cityName(
+                        country: "",
+                        province: "",
+                        locality: pin.city ?? "",
+                        coordinate: coordinate
+                    )
                 )
             }
             buildRegionOptions()

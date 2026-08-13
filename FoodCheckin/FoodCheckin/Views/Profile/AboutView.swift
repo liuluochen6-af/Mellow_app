@@ -9,7 +9,7 @@ struct AboutView: View {
                 .font(.system(size: 80))
                 .foregroundColor(.black)
 
-            Text("吃喝玩乐打卡")
+            Text("Mellow")
                 .font(.title2.bold())
                 .foregroundColor(.primary)
 
