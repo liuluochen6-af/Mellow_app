@@ -1,90 +1,288 @@
-# 吃喝玩乐打卡 (FoodCheckIn)
+# Mellow
 
-一款以个人记录 + 游戏化成就为核心的 iOS 打卡 App。记录去过的餐厅、咖啡店、景点等地点，通过日历和地图两个维度回顾探索足迹。
+Mellow 是一款以个人地点记录为核心的 iOS 打卡应用。用户可以记录餐厅、饮品店、娱乐场所、购物地点和景点，通过日历、地图和统计页面回顾自己的探索足迹，也可以与好友分享动态。
 
-## 项目结构
+当前 iOS 工程内部仍沿用 `FoodCheckin` target 名称，安装到设备后显示名称为 **Mellow**。
 
-```
-food/
-├── FoodCheckin/          # iOS SwiftUI 前端
-│   └── FoodCheckin/
-│       └── Views/
-│           ├── Auth/         # 登录注册
-│           ├── Calendar/     # 日历视图 + 照片墙 + 月度统计
-│           ├── CheckIn/      # 打卡页面
-│           ├── Map/          # 地图 + 区域填色 + 图钉标记
-│           ├── Profile/      # 个人中心 + 统计
-│           └── Social/       # 好友动态
-├── backend/              # Python FastAPI 后端
-│   ├── app/
-│   │   ├── routers/      # API 路由 (auth/checkin/stats/social)
-│   │   ├── models/       # SQLAlchemy 数据模型
-│   │   └── ...
-│   └── pyproject.toml
-└── docs/
-    ├── prototype.html    # 交互式 HTML 原型（可直接浏览器打开）
-    └── superpowers/      # 产品设计文档
-```
+## 主要功能
+
+- **手机号登录**：支持中国大陆手机号和带国家区号的国际号码。
+- **Apple ID 登录**：使用随机 nonce，并由后端验证 Apple identity token 的签名、签发方、Bundle ID 和有效期。
+- **地点打卡**：选择照片和地点，填写类别、评分、标签、备注及可选消费金额。
+- **四档评分**：夯、不错、一般、拉，使用自定义黑色圆形图标。
+- **日历回顾**：按日期查看打卡记录、照片墙和年度汇总。
+- **地图足迹**：显示打卡图钉、已访问区域和城市级聚合。
+- **城市归类**：后端统一负责城市名称规范化；墨尔本都市圈内地点统一显示为“墨尔本”，包括历史打卡数据。
+- **数据统计**：类别分布、消费统计、最佳地点及月度汇总。
+- **好友与收藏**：好友申请、好友动态、评论、通知和收藏。
+- **个人中心**：修改头像与昵称、查看记录和删除账号。
+- **缓存优化**：限制内存与磁盘缓存大小，并缓存部分 API 响应，减少重复加载。
 
 ## 技术栈
 
-| 层 | 技术 |
-|----|------|
-| iOS 前端 | SwiftUI + MapKit + PhotosUI |
-| 后端 | Python FastAPI + SQLAlchemy (async) |
-| 数据库 | SQLite (aiosqlite)，可切换 PostgreSQL |
-| 包管理 | uv (Python) |
-| 地图 | Apple MapKit + MKPolygon 区域填色 |
+| 模块 | 技术 |
+| --- | --- |
+| iOS | Swift 5.9、SwiftUI、MapKit、PhotosUI、AuthenticationServices、CryptoKit |
+| 后端 | Python 3.10–3.12、FastAPI、SQLAlchemy Async |
+| 数据库 | PostgreSQL（生产）、SQLite（本地开发与测试） |
+| Python 包管理 | uv |
+| 短信 | 阿里云国内短信 SendSms、国际短信 SendMessageToGlobe |
+| 登录 | 手机验证码、Sign in with Apple |
+| 部署 | Ubuntu、systemd、Nginx、Let’s Encrypt |
 
-## 快速开始
+## 项目结构
 
-### 后端
+```text
+food-main/
+├── FoodCheckin/
+│   ├── FoodCheckin.xcodeproj/       # Xcode 工程
+│   ├── FoodCheckin/
+│   │   ├── Assets.xcassets/         # App 图标
+│   │   ├── Models/                  # iOS 数据模型
+│   │   ├── Resources/               # 评分图标与地图数据
+│   │   ├── Services/                # API、认证、位置、缓存等服务
+│   │   └── Views/
+│   │       ├── Auth/                # Apple/手机号登录
+│   │       ├── Calendar/            # 日历与照片墙
+│   │       ├── CheckIn/             # 创建和编辑打卡
+│   │       ├── Map/                 # 地图与城市区域
+│   │       ├── Profile/             # 个人中心
+│   │       ├── Social/              # 好友动态
+│   │       └── Stats/               # 数据统计
+│   └── project.yml                  # XcodeGen 配置
+├── backend/
+│   ├── app/
+│   │   ├── models/                  # SQLAlchemy 模型
+│   │   ├── routers/                 # FastAPI 路由
+│   │   ├── schemas/                 # 请求/响应结构
+│   │   └── services/                # Apple、短信、城市、图片服务
+│   ├── tests/                       # 后端测试
+│   ├── nginx.conf                   # 生产反向代理与 HTTPS
+│   └── foodcheckin.service          # systemd 服务
+└── docs/                            # 原型和设计资料
+```
+
+## 本地运行
+
+### 环境要求
+
+- macOS 与 Xcode（项目最低支持 iOS 17）
+- Python 3.10–3.12
+- [uv](https://docs.astral.sh/uv/)
+
+### 1. 启动后端
 
 ```bash
 cd backend
-
-# 安装 uv（如果没有）
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# 安装依赖并启动
-uv sync
-uv run uvicorn app.main:app --reload --port 8000
+cp .env.example .env
 ```
 
-API 文档：http://localhost:8000/docs
+本地开发可将 `.env` 中的数据库改成 SQLite：
 
-### iOS 前端
+```env
+DATABASE_URL=sqlite+aiosqlite:///./foodcheckin.db
+APP_ENV=development
+SMS_DEBUG_RETURN_CODE=true
+APPLE_CLIENT_ID=com.foodcheckin.app
+SECRET_KEY=replace-with-a-random-local-secret
+```
 
-用 Xcode 打开 `FoodCheckin/FoodCheckin.xcodeproj`，选择模拟器运行。
+不配置阿里云短信 AccessKey 时，开发环境会在后端终端打印验证码；当 `SMS_DEBUG_RETURN_CODE=true` 时，iOS 登录页会自动填入开发验证码。生产环境不会返回验证码。
 
-### HTML 原型
+安装依赖并启动：
 
-直接浏览器打开 `docs/prototype.html`，可预览所有页面交互。
+```bash
+uv sync
+uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
 
-## 功能模块
+验证服务：
 
-- **打卡**：拍照 → 选地点 → 评分(夯/不错/一般/拉) → 标签 → 发布
-- **日历**：月视图打卡日期标记、年月跳转、照片墙（按日期降序）、月度统计
-- **地图**：已打卡区域填色、照片图标图钉、点击缩放到街道级、区域菜单跳转
-- **统计**：按年月筛选，探索足迹/类别分布/消费统计/最佳推荐
-- **社交**：好友动态、评论、@提醒
+```bash
+curl http://localhost:8000/health
+```
 
-## API 接口
+预期响应：
 
-| 路由 | 说明 |
-|------|------|
-| `POST /api/auth/login` | 登录 |
-| `POST /api/checkins` | 创建打卡 |
-| `GET /api/checkins` | 获取打卡列表 |
-| `GET /api/stats/overview?year=&month=` | 探索足迹统计 |
-| `GET /api/stats/category-breakdown?year=&month=` | 类别分布 |
-| `GET /api/stats/spending?year=&month=` | 消费统计 |
-| `GET /api/stats/top-places?year=&month=` | 最佳推荐 |
-| `GET /api/stats/monthly-summary?year=&month=` | 月度汇总 |
+```json
+{"status":"ok"}
+```
 
-## 设计风格
+API 文档地址：<http://localhost:8000/docs>
 
-- 暖色米黄/奶油色背景 (`#FAF5EE`)
-- 深棕色文字 (`#594026`)
-- 金色高亮 (`#C29A6B`)
-- 圆角卡片式 UI
+### 2. 启动 iOS App
+
+1. 用 Xcode 打开 `FoodCheckin/FoodCheckin.xcodeproj`。
+2. 选择 iOS 17 或更高版本的模拟器。
+3. 启动本地后端。
+4. Run 工程。
+
+模拟器使用 `http://localhost:8000`，真机使用 `https://8.137.156.254`。地址定义在：
+
+```text
+FoodCheckin/FoodCheckin/Services/APIClient.swift
+```
+
+## 环境变量
+
+| 变量 | 必填范围 | 说明 |
+| --- | --- | --- |
+| `DATABASE_URL` | 全部环境 | SQLAlchemy 异步数据库连接 |
+| `APP_ENV` | 推荐 | `development`、`test` 或 `production` |
+| `SECRET_KEY` | 生产必填 | 应使用足够长的随机值 |
+| `APPLE_CLIENT_ID` | Apple 登录 | 必须等于 `com.foodcheckin.app` |
+| `SMS_ACCESS_KEY_ID` | 生产短信 | 阿里云 AccessKey ID |
+| `SMS_ACCESS_KEY_SECRET` | 生产短信 | 阿里云 AccessKey Secret |
+| `SMS_SIGN_NAME` | 国内短信 | 已审核的短信签名 |
+| `SMS_TEMPLATE_CODE` | 国内短信 | 已审核的验证码模板代码 |
+| `SMS_INTERNATIONAL_SENDER_ID` | 国际短信 | 目标国家允许的 Sender ID |
+| `SMS_INTERNATIONAL_MESSAGE_TEMPLATE` | 国际短信 | 必须包含 `{code}` |
+| `SMS_DEBUG_RETURN_CODE` | 仅本地 | 生产环境必须为 `false` |
+
+不要提交真实 `.env`、短信密钥、数据库密码、Apple 私钥或 SSH 私钥。
+
+## 登录配置
+
+### 手机号登录
+
+- 中国大陆号码可输入 11 位手机号，也支持 `+86`。
+- 国际号码必须使用 E.164 格式，例如 `+61412345678`。
+- 国内号码调用阿里云 `SendSms`。
+- 国际号码调用阿里云 `SendMessageToGlobe`。
+- 验证码有效期为 5 分钟，同一号码发送间隔为 60 秒。
+
+### Apple ID 登录
+
+iOS target 已包含 `Sign in with Apple` entitlement。后端从 Apple JWKS 地址获取并缓存公钥，不接受客户端自行声明的 Apple 用户 ID。
+
+上线前必须完成：
+
+1. 加入付费 Apple Developer Program；免费的 Personal Team 不支持 Sign in with Apple。
+2. 为 App ID `com.foodcheckin.app` 启用 **Sign in with Apple**。
+3. 在 Xcode 的 **Signing & Capabilities** 中选择付费 Team，并开启自动签名。
+4. 保持服务器 `APPLE_CLIENT_ID=com.foodcheckin.app`。
+5. 真机 API 必须使用 HTTPS。
+
+## 城市级聚合
+
+客户端只负责提交地理编码结果，后端 `backend/app/services/city.py` 是城市归类的最终规则来源。
+
+当前规则：
+
+- 墨尔本都市圈坐标范围内的地点统一归类为“墨尔本”。
+- Glen Waverley、Richmond、Box Hill 等 suburb 不会作为独立城市展示。
+- 读取统计和区域数据时也会规范化历史记录。
+- 其他国家和地区默认使用地理编码返回的城市值，不回退到区、县或 suburb。
+
+新增特殊都市圈规则时，应同时增加 `backend/tests/test_city.py` 测试。
+
+## API 概览
+
+### 认证
+
+| 方法 | 路径 | 说明 |
+| --- | --- | --- |
+| POST | `/api/auth/send-code` | 发送手机验证码 |
+| POST | `/api/auth/phone-login` | 手机验证码登录 |
+| POST | `/api/auth/apple-login` | Apple identity token 登录 |
+| GET | `/api/auth/me` | 获取当前用户 |
+| PUT | `/api/auth/profile` | 修改昵称或头像 |
+| DELETE | `/api/auth/delete-account` | 删除账号 |
+
+### 打卡
+
+| 方法 | 路径 | 说明 |
+| --- | --- | --- |
+| POST | `/api/checkins` | 创建打卡 |
+| GET | `/api/checkins/mine` | 当前用户打卡列表 |
+| GET | `/api/checkins/search` | 搜索打卡 |
+| GET | `/api/checkins/calendar` | 日历数据 |
+| GET | `/api/checkins/year-summary` | 年度汇总 |
+| GET | `/api/checkins/map-pins` | 地图图钉 |
+| GET | `/api/checkins/visited-regions` | 已访问国家与城市 |
+| GET/PUT/DELETE | `/api/checkins/{checkin_id}` | 查看、修改或删除打卡 |
+
+### 统计与社交
+
+- `/api/stats/*`：总览、类别、消费、最佳地点和月度统计。
+- `/api/social/*`：好友、申请、动态、评论、通知及收藏。
+
+完整请求结构和调试入口以 FastAPI 的 `/docs` 为准。
+
+## 测试
+
+运行全部后端测试：
+
+```bash
+cd backend
+uv run pytest -q
+```
+
+当前测试覆盖：
+
+- 国内及国际手机号规范化
+- 短信发送错误与开发模式
+- Apple JWT 签名、audience 和 nonce 验证
+- 认证、账号删除和个人资料
+- 打卡创建、查询和统计
+- 墨尔本城市归类及历史数据聚合
+
+验证 iOS 编译：
+
+```bash
+xcodebuild \
+  -project FoodCheckin/FoodCheckin.xcodeproj \
+  -scheme FoodCheckin \
+  -destination 'generic/platform=iOS' \
+  CODE_SIGNING_ALLOWED=NO \
+  build
+```
+
+## 生产部署
+
+当前生产结构：
+
+```text
+iOS App
+   │ HTTPS
+   ▼
+Nginx :443
+   │
+   ▼
+Uvicorn/FastAPI 127.0.0.1:8000
+   │
+   ▼
+PostgreSQL
+```
+
+仓库包含：
+
+- `backend/foodcheckin.service`：FastAPI systemd 服务
+- `backend/nginx.conf`：HTTP 跳转 HTTPS、API 反向代理和上传文件
+- `backend/mellow-certbot-renew.service`：证书续期服务
+- `backend/mellow-certbot-renew.timer`：每天两次检查续期
+- `backend/certbot-reload-nginx.sh`：续期后验证并重载 Nginx
+
+生产 API 当前使用 Let’s Encrypt 公网 IP 短期证书。该证书约 6 天有效，因此自动续期 timer 和续期后的 Nginx reload hook 都必须保持启用。
+
+常用检查命令：
+
+```bash
+sudo systemctl status foodcheckin --no-pager
+sudo systemctl status nginx --no-pager
+sudo systemctl status mellow-certbot-renew.timer --no-pager
+curl https://8.137.156.254/health
+```
+
+## 数据与安全说明
+
+- 用户、打卡、好友、评论、通知和收藏数据保存在后端数据库。
+- 登录 token 保存在 iOS Keychain，重新打开 App 不需要再次输入手机号。
+- 上传图片保存在服务器 `uploads` 目录，通过 Nginx 提供访问。
+- Apple identity token 只通过 HTTPS 发送，并在后端验签。
+- 生产环境禁止返回短信验证码。
+- 删除账号会删除当前后端用户记录；发布前仍应根据最终隐私政策确认关联数据清理和第三方授权撤销要求。
+
+## License
+
+当前仓库尚未声明开源许可证。未经项目所有者许可，请勿将代码用于公开分发或商业用途。
