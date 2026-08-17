@@ -7,6 +7,12 @@ idea来源于很多时候和朋友聚餐都要先用手机拍照记录，事后�
 
 > iOS 工程和 target 仍使用 `FoodCheckin` 作为内部名称，安装后的 App 名称为 **Mellow**。
 
+## 演示与安装
+
+[▶️ 观看 60 秒中文配音演示](docs/mellow-demo-zh.mp4)
+
+> **iPhone 安装说明：** 当前版本尚未通过 App Store 或 TestFlight 分发，因此 GitHub 上暂时不能直接安装。开发者可以按照下方步骤使用 Xcode 运行；公开 TestFlight 链接发布后会在这里提供一键安装入口。
+
 ## 功能亮点
 
 - **快速打卡**：添加照片、地点、分类、评分、标签、备注和可选消费金额。
