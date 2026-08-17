@@ -61,6 +61,7 @@
 		E8ACD6F4C9A99318AE96606C /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DBB969605332C935CFC5C81 /* User.swift */; };
 		E9F08BD3A3A12B74981DDC14 /* MentionPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586DE582EDA7850662A5E426 /* MentionPickerView.swift */; };
 		EE55FF667788990011223344 /* ShareHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF66778899001122334455AA /* ShareHelper.swift */; };
+		AABBCCDDEEFF001122334455 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCCDDEEFF00112233445566 /* Theme.swift */; };
 		F1F2F3F4F5F6F7F8F9A0A1A2 /* DateParsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1E2E3E4E5E6E7E8E9F0F1F2 /* DateParsing.swift */; };
 		F2F3F4F5F6F7F8F9A0B1C2D3 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E3E4E5E6E7E8E9F0A1B2C3 /* CameraView.swift */; };
 		FC952CCC9C06F0DF31F852F6 /* china-provinces.json in Resources */ = {isa = PBXBuildFile; fileRef = C6E5CE4F7F6E41C679814FC9 /* china-provinces.json */; };
@@ -136,6 +137,7 @@
 		F7A8B9C0D1E20D54758F9A0B /* china-cities.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "china-cities.json"; sourceTree = "<group>"; };
 		FCFB75EE98C22972FCF10CAB /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		FF66778899001122334455AA /* ShareHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareHelper.swift; sourceTree = "<group>"; };
+		BBCCDDEEFF00112233445566 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -146,6 +148,7 @@
 				C0743CC97E8F912D4C446AAB /* DraftStore.swift */,
 				E08C24FE9D24A0113F2671A0 /* KeychainHelper.swift */,
 				FF66778899001122334455AA /* ShareHelper.swift */,
+				BBCCDDEEFF00112233445566 /* Theme.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -353,11 +356,6 @@
 				TargetAttributes = {
 					0D53A53D8FB617AC1EE65161 = {
 						DevelopmentTeam = V8Z83JTLBT;
-						SystemCapabilities = {
-							com.apple.SignInWithApple = {
-								enabled = 1;
-							};
-						};
 					};
 				};
 			};
@@ -450,6 +448,7 @@
 				AA11BB22CC33DD44EE55FF66 /* EditProfileView.swift in Sources */,
 				CC33DD44EE55FF6677889900 /* ShareCardView.swift in Sources */,
 				EE55FF667788990011223344 /* ShareHelper.swift in Sources */,
+				AABBCCDDEEFF001122334455 /* Theme.swift in Sources */,
 				7EFA944F5A33544AF171CED6 /* SocialService.swift in Sources */,
 				7C1FA0155F0386091AB53F39 /* StatsView.swift in Sources */,
 				CD93D8F9189B837A264985ED /* StatsViewModel.swift in Sources */,
@@ -477,6 +476,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.foodcheckin.app;
 				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = APPLE_SIGN_IN_ENABLED;
 				SWIFT_VERSION = 5.9;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -605,7 +605,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = FoodCheckin/FoodCheckin.entitlements;
+				CODE_SIGN_ENTITLEMENTS = FoodCheckin/FoodCheckinDebug.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEVELOPMENT_TEAM = V8Z83JTLBT;
 				INFOPLIST_FILE = FoodCheckin/Info.plist;

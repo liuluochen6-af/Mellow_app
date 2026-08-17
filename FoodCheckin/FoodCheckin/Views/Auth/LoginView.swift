@@ -31,6 +31,7 @@ struct LoginView: View {
                 Spacer()
 
                 VStack(spacing: 16) {
+                    #if APPLE_SIGN_IN_ENABLED
                     SignInWithAppleButton(.signIn) { request in
                         let nonce = randomNonceString()
                         appleNonce = nonce
@@ -42,6 +43,7 @@ struct LoginView: View {
                     .signInWithAppleButtonStyle(.black)
                     .frame(height: 50)
                     .cornerRadius(25)
+                    #endif
 
                     Button {
                         showPhoneLogin = true

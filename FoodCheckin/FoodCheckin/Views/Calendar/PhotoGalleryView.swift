@@ -125,7 +125,7 @@ struct GalleryPhotoCell: View {
         Color.clear
             .aspectRatio(1, contentMode: .fit)
             .overlay {
-                AsyncImage(url: URL(string: APIClient.shared.baseURL + checkIn.photoUrl)) { image in
+                CachedAsyncImage(url: URL(string: APIClient.shared.baseURL + checkIn.photoUrl)) { image in
                     image
                         .resizable()
                         .scaledToFill()

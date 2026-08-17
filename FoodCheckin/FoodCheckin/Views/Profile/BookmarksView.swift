@@ -44,7 +44,7 @@ struct BookmarkRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            AsyncImage(url: URL(string: APIClient.shared.baseURL + item.photoUrl)) { image in
+            CachedAsyncImage(url: URL(string: APIClient.shared.baseURL + item.photoUrl)) { image in
                 image.resizable().scaledToFill()
             } placeholder: {
                 Color.gray.opacity(0.1)

@@ -15,6 +15,29 @@ extension UIImage {
         UIGraphicsEndImageContext()
         return normalized ?? self
     }
+
+    /// Produces an upload payload that stays below nginx's commonly configured
+    /// request limit. The backend stores photos at 1080 px, so sending the full
+    /// camera resolution only wastes bandwidth and can trigger HTTP 413.
+    func checkInUploadData() -> Data? {
+        fixedOrientation()
+            .resizedForUpload(maxDimension: 1_080)
+            .jpegData(compressionQuality: 0.7)
+    }
+
+    private func resizedForUpload(maxDimension: CGFloat) -> UIImage {
+        let longestSide = max(size.width, size.height)
+        guard longestSide > maxDimension else { return self }
+
+        let scale = maxDimension / longestSide
+        let targetSize = CGSize(width: size.width * scale, height: size.height * scale)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        format.opaque = true
+        return UIGraphicsImageRenderer(size: targetSize, format: format).image { _ in
+            draw(in: CGRect(origin: .zero, size: targetSize))
+        }
+    }
 }
 
 @MainActor
@@ -24,8 +47,10 @@ class CheckInService: ObservableObject {
     @Published var errorMessage: String?
 
     func publish(data: CheckInData, image: UIImage) async -> Bool {
-        let fixedImage = image.fixedOrientation()
-        guard let photoData = fixedImage.jpegData(compressionQuality: 0.7) else {
+        let photoData = await Task.detached(priority: .userInitiated) {
+            image.checkInUploadData()
+        }.value
+        guard let photoData else {
             errorMessage = "图片处理失败"
             return false
         }

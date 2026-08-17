@@ -33,11 +33,12 @@ sudo systemctl daemon-reload
 sudo systemctl enable foodcheckin
 sudo systemctl restart foodcheckin
 
-# 8. Setup nginx (run once, replace your-domain.com)
-# sudo cp nginx.conf /etc/nginx/sites-available/foodcheckin
-# sudo ln -sf /etc/nginx/sites-available/foodcheckin /etc/nginx/sites-enabled/
-# sudo certbot --nginx -d your-domain.com
-# sudo systemctl restart nginx
+# 8. Keep nginx configuration in sync on every deploy. The TLS certificate must
+# already exist (see nginx.conf) before the first run.
+sudo cp nginx.conf /etc/nginx/sites-available/foodcheckin
+sudo ln -sf /etc/nginx/sites-available/foodcheckin /etc/nginx/sites-enabled/foodcheckin
+sudo nginx -t
+sudo systemctl reload nginx
 
 echo "=== Deploy complete ==="
 echo "Check status: sudo systemctl status foodcheckin"

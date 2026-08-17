@@ -32,7 +32,7 @@ struct FeedCardView: View {
                     .font(.title3)
             }
 
-            AsyncImage(url: URL(string: APIClient.shared.baseURL + item.photoUrl)) { image in
+            CachedAsyncImage(url: URL(string: APIClient.shared.baseURL + item.photoUrl)) { image in
                 image
                     .resizable()
                     .scaledToFill()

@@ -14,7 +14,7 @@ struct CheckInDetailView: View {
                         .frame(maxWidth: .infinity, minHeight: 300)
                 } else if let checkIn {
                     VStack(alignment: .leading, spacing: 16) {
-                        AsyncImage(url: URL(string: APIClient.shared.baseURL + checkIn.photoUrl)) { image in
+                        CachedAsyncImage(url: URL(string: APIClient.shared.baseURL + checkIn.photoUrl)) { image in
                             image
                                 .resizable()
                                 .scaledToFill()

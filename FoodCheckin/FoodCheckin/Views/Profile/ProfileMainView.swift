@@ -98,7 +98,7 @@ struct ProfileMainView: View {
         if let url = authService.currentUser?.avatarUrl,
            !url.isEmpty,
            let fullURL = URL(string: APIClient.shared.baseURL + url) {
-            AsyncImage(url: fullURL) { image in
+            CachedAsyncImage(url: fullURL) { image in
                 image.resizable().scaledToFill()
             } placeholder: {
                 avatarPlaceholder

@@ -17,7 +17,7 @@ struct DayDetailView: View {
                 HStack(spacing: 12) {
                     ForEach(checkIns) { checkIn in
                         VStack(alignment: .leading, spacing: 4) {
-                            AsyncImage(url: URL(string: APIClient.shared.baseURL + checkIn.photoUrl)) { image in
+                            CachedAsyncImage(url: URL(string: APIClient.shared.baseURL + checkIn.photoUrl)) { image in
                                 image
                                     .resizable()
                                     .scaledToFill()
@@ -71,7 +71,7 @@ struct CheckInDetailSheet: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    AsyncImage(url: URL(string: APIClient.shared.baseURL + checkIn.photoUrl)) { image in
+                    CachedAsyncImage(url: URL(string: APIClient.shared.baseURL + checkIn.photoUrl)) { image in
                         image
                             .resizable()
                             .scaledToFit()

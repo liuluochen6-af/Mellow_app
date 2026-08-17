@@ -215,12 +215,17 @@ class APIClient {
             KeychainHelper.deleteToken()
             throw APIError.unauthorized
         }
+        if http.statusCode == 413 {
+            throw APIError.serverError(http.statusCode, "照片过大，请选择较小的照片后重试")
+        }
         if http.statusCode >= 400 {
             var message = "请求失败"
             if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                let detail = json["detail"] as? String {
                 message = detail
-            } else if let raw = String(data: data, encoding: .utf8), !raw.isEmpty {
+            } else if let raw = String(data: data, encoding: .utf8),
+                      !raw.isEmpty,
+                      !raw.localizedCaseInsensitiveContains("<html") {
                 message = raw
             }
             throw APIError.serverError(http.statusCode, message)

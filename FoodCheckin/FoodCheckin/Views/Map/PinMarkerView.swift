@@ -8,7 +8,7 @@ struct PinMarkerView: View {
         VStack(spacing: 0) {
             // Photo thumbnail with category badge
             ZStack(alignment: .bottomTrailing) {
-                AsyncImage(url: URL(string: APIClient.shared.baseURL + pin.photoUrl)) { image in
+                CachedAsyncImage(url: URL(string: APIClient.shared.baseURL + pin.photoUrl)) { image in
                     image
                         .resizable()
                         .scaledToFill()
