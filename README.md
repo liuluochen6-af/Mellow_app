@@ -7,7 +7,7 @@ idea来源于很多时候和朋友聚餐都要先用手机拍照记录，事后�
 
 > iOS 工程和 target 仍使用 `FoodCheckin` 作为内部名称，安装后的 App 名称为 **Mellow**。
 
-## 演示与安装
+## 演示
 
 [▶️ 观看 60 秒中文配音演示](docs/mellow-demo-zh.mp4)
 
