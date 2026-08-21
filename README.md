@@ -9,6 +9,8 @@ idea来源于很多时候和朋友聚餐都要先用手机拍照记录，事后�
 
 ## 演示
 
+[🌐 在线体验 Mellow 产品设计案例与交互原型](https://mellow-place-diary.liuluochen6.chatgpt.site)
+
 [▶️ 观看 60 秒中文配音演示](docs/mellow-demo-zh.mp4)
 
 
